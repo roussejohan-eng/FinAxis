@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 255 255 255;
+  --foreground: 15 42 68;
+
+  --background: #ffffff;
+  --foreground: #0f2a44;
+  --card: #ffffff;
+  --card-foreground: #0f2a44;
+  --border: #e5e9ee;
+  --input: #e5e9ee;
+  --ring: #1fb6c1;
+  --muted: #f7f9fb;
+  --muted-foreground: #6b7280;
+  --accent: #eafbfc;
+  --accent-foreground: #0f2a44;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+}
+
+.dark {
+  --background: #081726;
+  --foreground: #f7f9fb;
+  --card: #0f2a44;
+  --card-foreground: #f7f9fb;
+  --border: #1c3b57;
+  --input: #1c3b57;
+  --ring: #1fb6c1;
+  --muted: #0b2036;
+  --muted-foreground: #9aa9b8;
+  --accent: #123244;
+  --accent-foreground: #f7f9fb;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid #1fb6c1;
+    outline-offset: 2px;
+  }
+}
