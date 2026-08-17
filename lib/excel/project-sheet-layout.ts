@@ -1,6 +1,5 @@
 import * as XLSX from "xlsx";
 import type {
-  FixedExpenseCategory,
   Investment,
   Project,
   RevenueSource,
@@ -11,6 +10,7 @@ import type {
 import { SEASONALITY_COEFFICIENTS, SEASONALITY_LABELS } from "@/lib/finance/seasonality";
 import { EUR_FORMAT, finalizeSheet, setLabel, setValue } from "./sheet-helpers";
 import { FIXED_EXPENSE_CATEGORIES, LEGAL_STATUS_OPTIONS, SECTOR_OPTIONS } from "@/lib/wizard/options";
+import { matchOption, uid, type ParsedProjectData, type ParseResult } from "@/lib/project-import-types";
 
 // -- Gabarit de la feuille "Hyp" (Hypothèses) --------------------------
 // Partagé entre l'export du dossier complet (lib/excel/generate.ts) et le
@@ -226,39 +226,7 @@ export function buildEmptyHypSheet(project: Project): XLSX.WorkSheet {
 
 // -- Lecture (import) ---------------------------------------------------
 
-export interface ParsedProjectData {
-  name: string;
-  sector: Project["sector"];
-  legalStatus: Project["legalStatus"];
-  startDate: string;
-  initialCash: number;
-  seasonality: SeasonalityProfile;
-  revenueSources: RevenueSource[];
-  fixedExpenses: { id: string; name: string; monthlyAmount: number; category: FixedExpenseCategory }[];
-  variableExpenses: VariableExpense[];
-  investments: Investment[];
-  financing: {
-    personalContribution: number;
-    honorLoan: number;
-    bankLoan: { amount: number; annualRate: number; months: number };
-    subsidies: number;
-  };
-}
-
-export interface ParseResult {
-  data: ParsedProjectData;
-  warnings: string[];
-}
-
-function uid(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
-  return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function matchOption<T extends string>(value: string, options: readonly T[], fallback: T): T {
-  const found = options.find((o) => o.toLowerCase() === value.toLowerCase());
-  return found ?? fallback;
-}
+export type { ParsedProjectData, ParseResult } from "@/lib/project-import-types";
 
 /** Lit une feuille "Hyp" (modèle d'import ou export FinAxis) et reconstitue les hypothèses du projet. */
 export function readProjectFromHypSheet(ws: XLSX.WorkSheet): ParseResult {

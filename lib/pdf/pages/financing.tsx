@@ -3,6 +3,7 @@ import { PdfPage } from "../components/pdf-page";
 import { PdfH1, PdfH2, PdfNote } from "../components/typography";
 import { PdfHeaderRow, PdfRow, PdfTable, Th, Td, MoneyTd } from "../components/table";
 import type { ProjectResults } from "@/lib/finance";
+import type { Project } from "@/lib/finance/types";
 import { PDF_COLORS, PDF_SIZES } from "../theme";
 import { formatEUR } from "../pdf-format";
 
@@ -40,15 +41,18 @@ const styles = StyleSheet.create({
 });
 
 export function FinancingPage({
+  project,
   results,
   projectName,
   generatedDate,
 }: {
+  project: Project;
   results: ProjectResults;
   projectName: string;
   generatedDate: string;
 }) {
   const { financing } = results;
+  const { bankLoan } = project.financing;
   const sample = financing.amortizationSchedule.slice(0, 12);
   const hasMore = financing.amortizationSchedule.length > 12;
 
@@ -113,6 +117,9 @@ export function FinancingPage({
       {financing.amortizationSchedule.length > 0 && (
         <>
           <PdfH2>Tableau d&apos;amortissement de l&apos;emprunt bancaire</PdfH2>
+          <PdfNote style={{ marginBottom: 6 }}>
+            {`Conditions de l'emprunt : taux annuel ${bankLoan.annualRate.toString().replace(".", ",")} %, durée ${bankLoan.months} mois.`}
+          </PdfNote>
           <PdfTable>
             <PdfHeaderRow>
               <Th flex={1}>Période</Th>

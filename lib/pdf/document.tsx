@@ -45,7 +45,7 @@ export function FinancialDossierDocument({
       <MonthlyDetailPage results={results} projectName={projectName} generatedDate={generatedDate} />
       <CashFlowPage results={results} projectName={projectName} generatedDate={generatedDate} />
       <VatPage results={results} projectName={projectName} generatedDate={generatedDate} />
-      <FinancingPage results={results} projectName={projectName} generatedDate={generatedDate} />
+      <FinancingPage project={project} results={results} projectName={projectName} generatedDate={generatedDate} />
       <BreakEvenPage results={results} projectName={projectName} generatedDate={generatedDate} />
       <MethodologyPage projectName={projectName} generatedDate={generatedDate} />
       <ContactSignaturePage project={project} projectName={projectName} generatedDate={generatedDate} />

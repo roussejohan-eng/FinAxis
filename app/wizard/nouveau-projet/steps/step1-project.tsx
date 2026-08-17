@@ -16,11 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WizardNavButtons } from "@/components/wizard/nav-buttons";
-import { ExcelImportCard } from "@/components/wizard/excel-import-card";
+import { ProjectImportCard } from "@/components/wizard/project-import-card";
 import { SECTOR_OPTIONS, LEGAL_STATUS_OPTIONS } from "@/lib/wizard/options";
 import { SEASONALITY_DESCRIPTIONS, SEASONALITY_LABELS } from "@/lib/finance/seasonality";
 import type { LegalStatus, Sector, SeasonalityProfile } from "@/lib/finance/types";
-import type { ParsedProjectData } from "@/lib/excel/project-sheet-layout";
+import type { ParsedProjectData } from "@/lib/project-import-types";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -96,7 +96,7 @@ export function Step1Project({ onNext }: { onNext: () => void }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <ExcelImportCard onImported={handleImported} />
+      <ProjectImportCard onImported={handleImported} />
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 sm:col-span-2">

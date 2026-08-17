@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Upload } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download, FileText, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { ParsedProjectData } from "@/lib/excel/project-sheet-layout";
+import type { ParsedProjectData } from "@/lib/project-import-types";
 
-export function ExcelImportCard({
+export function ProjectImportCard({
   onImported,
 }: {
   onImported: (data: ParsedProjectData, warnings: string[]) => void;
@@ -24,8 +24,10 @@ export function ExcelImportCard({
     setStatus("loading");
     setErrorMessage(null);
     try {
-      const { parseProjectFile } = await import("@/lib/excel/import-project");
-      const { data, warnings } = await parseProjectFile(file);
+      const isPdf = file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
+      const { data, warnings } = isPdf
+        ? await (await import("@/lib/pdf-import")).parsePdfFile(file)
+        : await (await import("@/lib/excel/import-project")).parseProjectFile(file);
       onImported(data, warnings);
       setLastImport({ fileName: file.name, warnings });
       setStatus("idle");
@@ -41,13 +43,13 @@ export function ExcelImportCard({
     <div className="rounded-lg border border-dashed border-turquoise-200 bg-turquoise-50/40 p-5">
       <div className="flex items-start gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white">
-          <FileSpreadsheet className="h-4.5 w-4.5 text-turquoise-600" aria-hidden />
+          <FileText className="h-4.5 w-4.5 text-turquoise-600" aria-hidden />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-navy-700">Importer un projet Excel</p>
+          <p className="text-sm font-semibold text-navy-700">Importer un projet existant</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Déjà vos chiffres quelque part ? Téléchargez notre modèle, complétez-le avec vos données,
-            puis déposez-le ici : tout le parcours se pré-remplit automatiquement.
+            Déposez un dossier financier déjà généré par FinAxis (PDF ou Excel) pour le recharger tel
+            quel, ou téléchargez notre modèle Excel vierge si vous partez de vos propres chiffres.
           </p>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -64,12 +66,12 @@ export function ExcelImportCard({
               disabled={status === "loading"}
             >
               <Upload className="h-4 w-4" aria-hidden />
-              {status === "loading" ? "Lecture en cours…" : "Déposer mon fichier rempli"}
+              {status === "loading" ? "Lecture en cours…" : "Déposer un fichier (PDF ou Excel)"}
             </Button>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx,.xls"
+              accept=".xlsx,.xls,.pdf"
               className="sr-only"
               onChange={(e) => {
                 const file = e.target.files?.[0];
@@ -78,6 +80,13 @@ export function ExcelImportCard({
               }}
             />
           </div>
+
+          <p className="mt-3 text-xs text-muted-foreground">
+            La lecture est fiable pour un PDF ou un Excel déjà généré par FinAxis (tous les champs sont
+            reconnus). Pour un autre document PDF, seuls quelques montants explicitement indiqués
+            (chiffre d&apos;affaires, apport, emprunt...) peuvent être repérés — le reste se complète
+            manuellement dans les étapes suivantes.
+          </p>
 
           {status === "error" && errorMessage && (
             <div className="mt-3 flex items-start gap-2 rounded-md bg-destructive/5 p-3 text-sm text-destructive">

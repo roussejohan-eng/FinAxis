@@ -13,7 +13,7 @@ import type {
   SeasonalityProfile,
   VariableExpense,
 } from "@/lib/finance/types";
-import type { ParsedProjectData } from "@/lib/excel/project-sheet-layout";
+import type { ParsedProjectData } from "@/lib/project-import-types";
 
 export interface WizardDraft {
   id: string;

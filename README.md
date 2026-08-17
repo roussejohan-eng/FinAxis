@@ -67,9 +67,13 @@ lib/finance/                Moteur de calcul pur, testé (revenus, charges, comp
 lib/pdf/                    Génération du PDF (@react-pdf/renderer) : gabarits de page,
                              tableaux, polices Roboto embarquées, graphique vectoriel
 lib/excel/                  Génération du classeur Excel (SheetJS) avec formules réelles
+lib/pdf-import/              Lecture d'un PDF déposé (pdfjs-dist) : extraction de texte,
+                             parseur FinAxis haute-fidélité, parseur générique best-effort
 lib/wizard/                 Constantes et options du wizard
 store/                      Stores Zustand (brouillon du wizard, projets sauvegardés)
 public/fonts/                Police Roboto (regular/medium/bold/italic) embarquée pour le PDF
+public/pdf.worker.min.mjs    Worker pdf.js (copié par scripts/copy-pdf-worker.js), servi tel
+                             quel pour l'import PDF côté client
 ```
 
 ## Moteur de calcul financier
@@ -156,19 +160,23 @@ Limites connues (documentées dans l'onglet Guide) :
   résultat) n'est pas garantie à l'écriture — la convention est documentée en
   toutes lettres dans l'onglet Guide.
 
-## Import d'un projet complet depuis Excel (étape 1 du wizard)
+## Import d'un projet complet depuis Excel ou PDF (étape 1 du wizard)
 
-En plus de la saisie manuelle, l'étape 1 du wizard propose d'importer un
-projet entier depuis un fichier Excel (`lib/excel/project-template.ts`,
-`lib/excel/import-project.ts`) :
+En plus de la saisie manuelle, l'étape 1 du wizard (`ProjectImportCard`,
+`components/wizard/project-import-card.tsx`) propose d'importer un projet
+entier depuis un fichier **Excel ou PDF** déjà généré par FinAxis, ou depuis
+le modèle Excel vierge :
 
 1. L'utilisateur télécharge un modèle vierge (feuille « Hyp » + guide),
-   pré-rempli avec une ligne d'exemple par tableau.
+   pré-rempli avec une ligne d'exemple par tableau — ou repart directement
+   d'un dossier déjà exporté par FinAxis (PDF ou Excel).
 2. Il le complète avec ses propres données (projet, sources de revenus,
    charges fixes/variables, investissements, financement).
-3. Il dépose le fichier rempli : toutes les étapes du wizard se pré-remplissent
+3. Il dépose le fichier : toutes les étapes du wizard se pré-remplissent
    automatiquement, avec des avertissements affichés pour toute donnée
    manquante ou plan de financement déséquilibré.
+
+### Import Excel
 
 Le modèle réutilise exactement le même gabarit de lignes/colonnes que la
 feuille « Hyp » de l'export Excel (`lib/excel/project-sheet-layout.ts`, seule
@@ -178,6 +186,41 @@ exporté par FinAxis pour mettre à jour un projet. Le parsing est
 volontairement strict sur cette structure : FinAxis ne peut pas deviner la
 mise en page d'un tableur quelconque déjà existant chez l'utilisateur, d'où
 le modèle fourni.
+
+### Import PDF
+
+Un PDF exporté par FinAxis peut être redéposé tel quel (`lib/pdf-import/`) :
+
+- **Extraction de texte** (`lib/pdf-import/extract-text.ts`) : le PDF est lu
+  entièrement côté client avec `pdfjs-dist`, page par page. `getTextContent()`
+  restitue les blocs de texte dans leur ordre d'écriture, qui correspond
+  exactement à l'ordre des cellules telles qu'écrites par
+  `@react-pdf/renderer` — c'est ce qui rend un parsing positionnel fiable.
+  Le worker `pdf.worker.min.mjs` est copié dans `public/` par
+  `scripts/copy-pdf-worker.js` (exécuté automatiquement via le script
+  `postinstall`) plutôt que résolu via `new URL(..., import.meta.url)` : cette
+  dernière approche fait passer le fichier dans le pipeline webpack de
+  Next.js, dont le minifieur de production (Terser) échoue sur les fichiers
+  ESM contenant `import.meta`. Le servir tel quel depuis `public/` évite le
+  problème.
+- **Parseur haute-fidélité** (`lib/pdf-import/parse-finaxis-pdf.ts`) : si le
+  PDF a la structure d'un export FinAxis (`looksLikeFinAxisPdf`), tous les
+  champs sont retrouvés avec la même fiabilité que l'import Excel. Point
+  d'attention si vous modifiez la mise en page du PDF exporté
+  (`lib/pdf/pages/*.tsx`) : le titre de chaque section (ex. « Hypothèses du
+  projet », « Plan de financement ») apparaît **aussi** dans le sommaire de
+  la page 2 — chercher la page par ce seul titre retomberait donc sur le
+  sommaire. `findPage()` exige en plus la présence d'un second repère propre
+  à la page de contenu réelle (ex. « Secteur d'activité » pour la page
+  Hypothèses, « Besoins » pour le Plan de financement) : à mettre à jour si
+  vous renommez ces repères.
+- **Parseur générique** (`lib/pdf-import/parse-generic-pdf.ts`) : pour tout
+  autre PDF (prévisionnel externe, document non structuré), une recherche par
+  mots-clés (« chiffre d'affaires », « apport », « emprunt »...) récupère les
+  quelques montants explicitement indiqués — le reste se complète
+  manuellement. Un avertissement rappelle systématiquement cette limite.
+- Un PDF scanné (sans couche de texte) n'est pas lisible automatiquement —
+  l'utilisateur est invité à utiliser le modèle Excel à la place.
 
 L'étape 3 du wizard garde par ailleurs son import ciblé de charges (fichiers
 `.xlsx` / `.csv` avec des colonnes `Nom`, `Montant`, `Catégorie`), pour ceux

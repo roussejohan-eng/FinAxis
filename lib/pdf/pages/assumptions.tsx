@@ -182,6 +182,43 @@ export function AssumptionsPage({
           )}
         </>
       )}
+
+      <PdfH2>Investissements</PdfH2>
+      {project.investments.length === 0 ? (
+        <PdfP>Aucun investissement saisi.</PdfP>
+      ) : (
+        <>
+          <PdfTable>
+            <PdfHeaderRow>
+              <Th flex={2} small>
+                Nom
+              </Th>
+              <Th flex={1} align="right" small>
+                Montant HT
+              </Th>
+              <Th flex={1} align="right" small>
+                Amortissement
+              </Th>
+            </PdfHeaderRow>
+            {project.investments.slice(0, MAX_ROWS_DISPLAYED).map((inv, i) => (
+              <PdfRow key={inv.id} zebra={i % 2 === 1}>
+                <Td flex={2} small>
+                  {inv.name || "—"}
+                </Td>
+                <MoneyTd flex={1} small value={inv.amountHT} />
+                <Td flex={1} align="right" small>
+                  {`${inv.amortizationYears} an${inv.amortizationYears > 1 ? "s" : ""}`}
+                </Td>
+              </PdfRow>
+            ))}
+          </PdfTable>
+          {project.investments.length > MAX_ROWS_DISPLAYED && (
+            <PdfNote style={{ marginTop: 4 }}>
+              {`+ ${project.investments.length - MAX_ROWS_DISPLAYED} autre(s) investissement(s) — détail complet dans le tableau de bord et l'export Excel.`}
+            </PdfNote>
+          )}
+        </>
+      )}
     </PdfPage>
   );
 }
