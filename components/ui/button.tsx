@@ -9,10 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-turquoise-500 text-white shadow-sm hover:bg-turquoise-600",
+        // CTA principal : bleu marine plein — sobre, cohérent avec un
+        // document destiné à être pris au sérieux par un banquier. Le
+        // turquoise est réservé aux accents (icônes, badges, liens,
+        // graphiques) et au variant "accent" ci-dessous, pour les CTA
+        // posés sur fond marine où le marine serait illisible.
+        default: "bg-navy-700 text-white shadow-sm hover:bg-navy-800",
+        // À utiliser uniquement pour un CTA sur fond sombre (sections marine).
+        accent: "bg-turquoise-500 text-white shadow-sm hover:bg-turquoise-600",
         secondary:
-          "bg-navy-700 text-white shadow-sm hover:bg-navy-800",
+          "bg-navy-50 text-navy-700 shadow-sm hover:bg-navy-100 border border-navy-100",
         outline:
           "border border-navy-700 bg-transparent text-navy-700 hover:bg-navy-50 dark:border-white/30 dark:text-white dark:hover:bg-white/10",
         ghost: "hover:bg-navy-50 text-navy-700 dark:text-white dark:hover:bg-white/10",

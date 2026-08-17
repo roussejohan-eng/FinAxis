@@ -20,8 +20,17 @@ export default function DashboardPage() {
   const params = useParams<{ projectId: string }>();
   const projectId = params.projectId;
   const project = useProjectsStore((s) => s.getProject(projectId));
+  const hasHydrated = useProjectsStore((s) => s.hasHydrated);
 
   const results = useMemo(() => (project ? computeProjectResults(project) : null), [project]);
+
+  // Les projets ne vivent que dans le localStorage du navigateur : tant que
+  // le store ne s'est pas réhydraté côté client, on affiche un état neutre
+  // identique au rendu serveur (au lieu de "Projet introuvable" à tort),
+  // pour éviter tout flash de contenu et toute erreur d'hydratation React.
+  if (!hasHydrated) {
+    return <div className="min-h-screen bg-white" aria-hidden />;
+  }
 
   if (!project || !results) {
     return (

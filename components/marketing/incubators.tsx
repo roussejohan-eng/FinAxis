@@ -53,7 +53,7 @@ export function Incubators() {
         </div>
 
         <FadeIn className="mt-14 flex justify-center">
-          <Button size="lg" asChild>
+          <Button size="lg" variant="accent" asChild>
             <Link href="/contact-b2b">Demander une démo B2B</Link>
           </Button>
         </FadeIn>

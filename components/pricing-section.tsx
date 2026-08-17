@@ -88,7 +88,7 @@ export function PricingSection({ showHeading = true }: { showHeading?: boolean }
             </div>
             <div className="flex flex-col items-start gap-3 lg:items-end">
               <p className="text-lg font-semibold text-turquoise-400">{B2B_PLAN.priceLabel}</p>
-              <Button asChild size="lg">
+              <Button asChild size="lg" variant="accent">
                 <Link href={B2B_PLAN.href}>{B2B_PLAN.cta}</Link>
               </Button>
             </div>

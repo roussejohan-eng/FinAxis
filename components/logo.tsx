@@ -60,21 +60,13 @@ export function Logo({
           fill="none"
         />
         <path
-          d="M 147 60 H 170 V 37"
+          d="M 145 68 C 145 52 152 42 165 38"
           stroke={arrowColor}
           strokeWidth="9"
           strokeLinecap="round"
-          strokeLinejoin="round"
           fill="none"
         />
-        <path
-          d="M 147 60 L 170 37"
-          stroke={arrowColor}
-          strokeWidth="9"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
+        <polygon points="163,29 179,34 168,47" fill={arrowColor} />
 
         {!mark && (
           <text

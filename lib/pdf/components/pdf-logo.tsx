@@ -1,4 +1,4 @@
-import { Path, Svg, Text as SvgText } from "@react-pdf/renderer";
+import { Path, Polygon, Svg, Text as SvgText } from "@react-pdf/renderer";
 import { PDF_COLORS } from "../theme";
 
 // Le typage react-pdf pour <Text> en contexte SVG n'expose pas fontFamily /
@@ -23,21 +23,13 @@ export function PdfLogo({ width = 90, color = PDF_COLORS.navy }: { width?: numbe
         fill="none"
       />
       <Path
-        d="M 147 60 H 170 V 37"
+        d="M 145 68 C 145 52 152 42 165 38"
         stroke={PDF_COLORS.turquoise}
         strokeWidth={9}
         strokeLinecap="round"
-        strokeLinejoin="round"
         fill="none"
       />
-      <Path
-        d="M 147 60 L 170 37"
-        stroke={PDF_COLORS.turquoise}
-        strokeWidth={9}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+      <Polygon points="163,29 179,34 168,47" fill={PDF_COLORS.turquoise} />
       <SvgText x={204} y={78} style={svgTextStyle} fill={color}>
         xis
       </SvgText>

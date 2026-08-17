@@ -26,17 +26,20 @@ function WizardContent() {
   const currentStep = useWizardStore((s) => s.currentStep);
   const setCurrentStep = useWizardStore((s) => s.setCurrentStep);
   const loadDraftFromProject = useWizardStore((s) => s.loadDraftFromProject);
+  const hasHydrated = useWizardStore((s) => s.hasHydrated);
   const getProject = useProjectsStore((s) => s.getProject);
+  const projectsHydrated = useProjectsStore((s) => s.hasHydrated);
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    if (!projectsHydrated) return;
     const editId = searchParams.get("edit");
     if (editId) {
       const project = getProject(editId);
       if (project) loadDraftFromProject(project);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, projectsHydrated]);
 
   const goNext = () => setCurrentStep(Math.min(currentStep + 1, 4));
   const goBack = () => setCurrentStep(Math.max(currentStep - 1, 0));
@@ -66,11 +69,17 @@ function WizardContent() {
         <p className="mt-1 text-sm text-muted-foreground">{STEP_DESCRIPTIONS[currentStep]}</p>
 
         <div className="mt-8 rounded-lg border border-border bg-white p-6 shadow-sm sm:p-8">
-          {currentStep === 0 && <Step1Project onNext={goNext} />}
-          {currentStep === 1 && <Step2Revenues onNext={goNext} onBack={goBack} />}
-          {currentStep === 2 && <Step3Expenses onNext={goNext} onBack={goBack} />}
-          {currentStep === 3 && <Step4Financing onNext={goNext} onBack={goBack} />}
-          {currentStep === 4 && <Step5Recap onBack={goBack} onGoToStep={goTo} />}
+          {/* Les champs de chaque étape lisent leurs valeurs initiales du
+              brouillon persisté au montage (react-hook-form ne les relit pas
+              automatiquement). Tant que le store ne s'est pas réhydraté
+              depuis localStorage, on n'affiche donc rien plutôt que de
+              monter le formulaire avec un brouillon vide qu'il ne
+              rafraîchira pas ensuite. */}
+          {hasHydrated && currentStep === 0 && <Step1Project onNext={goNext} />}
+          {hasHydrated && currentStep === 1 && <Step2Revenues onNext={goNext} onBack={goBack} />}
+          {hasHydrated && currentStep === 2 && <Step3Expenses onNext={goNext} onBack={goBack} />}
+          {hasHydrated && currentStep === 3 && <Step4Financing onNext={goNext} onBack={goBack} />}
+          {hasHydrated && currentStep === 4 && <Step5Recap onBack={goBack} onGoToStep={goTo} />}
         </div>
       </main>
     </div>

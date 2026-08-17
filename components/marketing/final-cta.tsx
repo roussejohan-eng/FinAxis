@@ -10,7 +10,7 @@ export function FinalCta() {
           <h2 className="mx-auto max-w-2xl text-3xl font-semibold sm:text-4xl">
             Prêt à construire un dossier que votre banquier prendra au sérieux ?
           </h2>
-          <Button size="lg" className="mt-8" asChild>
+          <Button size="lg" variant="accent" className="mt-8" asChild>
             <Link href="/wizard/nouveau-projet">Commencer gratuitement</Link>
           </Button>
         </FadeIn>

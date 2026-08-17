@@ -12,6 +12,7 @@ import { computeProjectResults } from "@/lib/finance";
 export default function ProjectsPage() {
   const projects = useProjectsStore((s) => s.projects);
   const removeProject = useProjectsStore((s) => s.removeProject);
+  const hasHydrated = useProjectsStore((s) => s.hasHydrated);
 
   return (
     <>
@@ -23,7 +24,10 @@ export default function ProjectsPage() {
             Vos dossiers financiers, sauvegardés localement dans ce navigateur.
           </p>
 
-          {projects.length === 0 ? (
+          {/* Tant que le store n'est pas réhydraté depuis localStorage, on
+              affiche un état neutre identique au rendu serveur (évite un
+              flash "aucun projet" → liste, et une erreur d'hydratation). */}
+          {!hasHydrated ? null : projects.length === 0 ? (
             <div className="mt-10 flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-white py-16 text-center">
               <FolderKanban className="h-8 w-8 text-muted-foreground" aria-hidden />
               <p className="text-sm text-muted-foreground">Vous n&apos;avez pas encore créé de projet.</p>

@@ -59,6 +59,11 @@ export const defaultDraft = (): WizardDraft => ({
 interface WizardStore {
   draft: WizardDraft;
   currentStep: number;
+  /** false tant que la réhydratation depuis localStorage n'est pas terminée
+   * côté client — le brouillon sauvegardé (et l'étape en cours) ne peut
+   * différer du rendu serveur qu'une fois cette valeur passée à true. */
+  hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
   setCurrentStep: (step: number) => void;
   setProjectInfo: (patch: Partial<Pick<WizardDraft, "name" | "sector" | "legalStatus" | "startDate" | "initialCash" | "seasonality">>) => void;
 
@@ -93,6 +98,8 @@ export const useWizardStore = create<WizardStore>()(
     (set, get) => ({
       draft: defaultDraft(),
       currentStep: 0,
+      hasHydrated: false,
+      setHasHydrated: (value) => set({ hasHydrated: value }),
 
       setCurrentStep: (step) => set({ currentStep: step }),
 
@@ -225,6 +232,10 @@ export const useWizardStore = create<WizardStore>()(
     {
       name: "finaxis-wizard-draft",
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ draft: state.draft, currentStep: state.currentStep }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

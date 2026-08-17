@@ -52,7 +52,9 @@ export function Hero() {
         </FadeIn>
 
         <FadeIn delay={0.1}>
-          <DashboardMockup className="w-full drop-shadow-sm" />
+          <div className="rounded-2xl shadow-sm">
+            <DashboardMockup className="w-full" />
+          </div>
         </FadeIn>
       </div>
     </section>
