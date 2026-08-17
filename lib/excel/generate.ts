@@ -1,153 +1,35 @@
 import * as XLSX from "xlsx";
 import type { Project } from "@/lib/finance/types";
 import type { ProjectResults } from "@/lib/finance";
-import { SEASONALITY_COEFFICIENTS, SEASONALITY_LABELS } from "@/lib/finance/seasonality";
 import { EUR_FORMAT, PCT_FORMAT, finalizeSheet, setFormula, setLabel, setValue } from "./sheet-helpers";
+import {
+  MAX_FIXED,
+  MAX_INVESTMENTS,
+  MAX_SOURCES,
+  MAX_VARIABLE,
+  ROW as HYP,
+  buildEmptyHypSheet,
+} from "./project-sheet-layout";
 
 // -- Gabarit de la feuille "Hypothèses" --------------------------------
 // Nombre de lignes réservées par tableau : les lignes en excédent restent
 // vides (et valent 0 dans les formules SUM/SUMIF), ce qui permet à
 // l'utilisateur d'ajouter des lignes dans la plage réservée sans casser
-// les formules des autres feuilles.
-const MAX_SOURCES = 10;
-const MAX_FIXED = 20;
-const MAX_VARIABLE = 20;
-const MAX_INVESTMENTS = 10;
+// les formules des autres feuilles. Le gabarit lui-même (lignes/colonnes)
+// est partagé avec le modèle d'import dans project-sheet-layout.ts.
 const LOAN_MONTHS_TEMPLATE = 60;
 
-const HYP_SOURCES_ROW = 18; // 18..27
-const HYP_FIXED_ROW = 31; // 31..50
-const HYP_VARIABLE_ROW = 54; // 54..73
-const HYP_INVEST_ROW = 77; // 77..86
-const HYP_COEF_LABEL_ROW = 97;
+const HYP_SOURCES_ROW = HYP.sourcesStart; // 18..27
+const HYP_FIXED_ROW = HYP.fixedStart; // 31..50
+const HYP_VARIABLE_ROW = HYP.variableStart; // 54..73
+const HYP_INVEST_ROW = HYP.investStart; // 77..86
 const HYP_COEF_ROW = 98;
 
 const MONTH_COLS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // colonnes B..M (0-indexées à partir de B=1)
 const MONTH_NAMES = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
 
 function buildHypSheet(project: Project): XLSX.WorkSheet {
-  const ws: XLSX.WorkSheet = {};
-
-  setLabel(ws, 0, 1, "FinAxis — Hypothèses du projet");
-  setLabel(ws, 0, 3, "Nom du projet");
-  setValue(ws, 1, 3, project.name || "Projet sans nom");
-  setLabel(ws, 0, 4, "Secteur d'activité");
-  setValue(ws, 1, 4, project.sector);
-  setLabel(ws, 0, 5, "Statut juridique");
-  setValue(ws, 1, 5, project.legalStatus);
-  setLabel(ws, 0, 6, "Date de démarrage");
-  setValue(ws, 1, 6, project.startDate);
-  setLabel(ws, 0, 7, "Trésorerie de départ (€)");
-  setValue(ws, 1, 7, project.initialCash, EUR_FORMAT);
-  setLabel(ws, 0, 8, "Profil de saisonnalité");
-  setValue(ws, 1, 8, SEASONALITY_LABELS[project.seasonality]);
-  setLabel(ws, 0, 9, "Croissance Année 2 (%)");
-  setValue(ws, 1, 9, 30);
-  setLabel(ws, 0, 10, "Croissance Année 3 (%)");
-  setValue(ws, 1, 10, 25);
-  setLabel(ws, 0, 11, "Taux de TVA (%)");
-  setValue(ws, 1, 11, 20);
-  setLabel(ws, 0, 12, "Taux IS réduit (%)");
-  setValue(ws, 1, 12, 15);
-  setLabel(ws, 0, 13, "Taux IS normal (%)");
-  setValue(ws, 1, 13, 25);
-  setLabel(ws, 0, 14, "Seuil IS réduit (€)");
-  setValue(ws, 1, 14, 42500, EUR_FORMAT);
-
-  // Sources de revenus
-  setLabel(ws, 0, 16, "Sources de revenus");
-  setLabel(ws, 1, 17, "Nom");
-  setLabel(ws, 2, 17, "Prix unitaire HT");
-  setLabel(ws, 3, 17, "Volume M1");
-  setLabel(ws, 4, 17, "Volume M12");
-  setLabel(ws, 5, 17, "Type");
-  for (let i = 0; i < MAX_SOURCES; i++) {
-    const row = HYP_SOURCES_ROW + i;
-    const source = project.revenueSources[i];
-    if (source) {
-      setValue(ws, 1, row, source.name);
-      setValue(ws, 2, row, source.unitPrice, EUR_FORMAT);
-      setValue(ws, 3, row, source.volumeM1);
-      setValue(ws, 4, row, source.volumeM12);
-      setValue(ws, 5, row, source.type);
-    }
-  }
-
-  // Charges fixes
-  setLabel(ws, 0, 29, "Charges fixes");
-  setLabel(ws, 1, 30, "Nom");
-  setLabel(ws, 2, 30, "Montant mensuel HT");
-  setLabel(ws, 3, 30, "Catégorie");
-  for (let i = 0; i < MAX_FIXED; i++) {
-    const row = HYP_FIXED_ROW + i;
-    const expense = project.fixedExpenses[i];
-    if (expense) {
-      setValue(ws, 1, row, expense.name);
-      setValue(ws, 2, row, expense.monthlyAmount, EUR_FORMAT);
-      setValue(ws, 3, row, expense.category);
-    }
-  }
-
-  // Charges variables
-  setLabel(ws, 0, 52, "Charges variables");
-  setLabel(ws, 1, 53, "Nom");
-  setLabel(ws, 2, 53, "Mode (percent / unit)");
-  setLabel(ws, 3, 53, "% du CA");
-  setLabel(ws, 4, 53, "Coût unitaire HT");
-  setLabel(ws, 5, 53, "Catégorie");
-  for (let i = 0; i < MAX_VARIABLE; i++) {
-    const row = HYP_VARIABLE_ROW + i;
-    const expense = project.variableExpenses[i];
-    if (expense) {
-      setValue(ws, 1, row, expense.name);
-      setValue(ws, 2, row, expense.mode);
-      setValue(ws, 3, row, expense.percentOfRevenue ?? 0);
-      setValue(ws, 4, row, expense.unitCost ?? 0, EUR_FORMAT);
-      setValue(ws, 5, row, expense.category);
-    }
-  }
-
-  // Investissements
-  setLabel(ws, 0, 75, "Investissements");
-  setLabel(ws, 1, 76, "Nom");
-  setLabel(ws, 2, 76, "Montant HT");
-  setLabel(ws, 3, 76, "Durée amortissement (ans)");
-  for (let i = 0; i < MAX_INVESTMENTS; i++) {
-    const row = HYP_INVEST_ROW + i;
-    const inv = project.investments[i];
-    if (inv) {
-      setValue(ws, 1, row, inv.name);
-      setValue(ws, 2, row, inv.amountHT, EUR_FORMAT);
-      setValue(ws, 3, row, inv.amortizationYears);
-    }
-  }
-
-  // Financement
-  setLabel(ws, 0, 88, "Financement");
-  setLabel(ws, 0, 89, "Apport personnel (€)");
-  setValue(ws, 1, 89, project.financing.personalContribution, EUR_FORMAT);
-  setLabel(ws, 0, 90, "Prêt d'honneur (€)");
-  setValue(ws, 1, 90, project.financing.honorLoan, EUR_FORMAT);
-  setLabel(ws, 0, 91, "Emprunt bancaire — montant (€)");
-  setValue(ws, 1, 91, project.financing.bankLoan.amount, EUR_FORMAT);
-  setLabel(ws, 0, 92, "Emprunt bancaire — taux annuel (%)");
-  setValue(ws, 1, 92, project.financing.bankLoan.annualRate);
-  setLabel(ws, 0, 93, "Emprunt bancaire — durée (mois)");
-  setValue(ws, 1, 93, project.financing.bankLoan.months);
-  setLabel(ws, 0, 94, "Subventions (€)");
-  setValue(ws, 1, 94, project.financing.subsidies, EUR_FORMAT);
-
-  // Coefficients de saisonnalité (profil sélectionné), normalisés moyenne = 1
-  const coefficients = SEASONALITY_COEFFICIENTS[project.seasonality];
-  const avg = coefficients.reduce((a, b) => a + b, 0) / 12;
-  setLabel(ws, 0, HYP_COEF_LABEL_ROW - 1, "Coefficients de saisonnalité mensuels (profil sélectionné)");
-  MONTH_COLS.forEach((col, i) => {
-    setLabel(ws, col, HYP_COEF_LABEL_ROW, MONTH_NAMES[i]);
-    setValue(ws, col, HYP_COEF_ROW, Math.round((coefficients[i] / avg) * 1000) / 1000);
-  });
-
-  finalizeSheet(ws);
-  return ws;
+  return buildEmptyHypSheet(project);
 }
 
 function buildRevenusSheet(): XLSX.WorkSheet {

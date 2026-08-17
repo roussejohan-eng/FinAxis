@@ -156,13 +156,37 @@ Limites connues (documentées dans l'onglet Guide) :
   résultat) n'est pas garantie à l'écriture — la convention est documentée en
   toutes lettres dans l'onglet Guide.
 
-## Import de charges (étape 3 du wizard)
+## Import d'un projet complet depuis Excel (étape 1 du wizard)
 
-Le glisser-déposer accepte des fichiers `.xlsx` et `.csv` avec des colonnes
-`Nom`, `Montant`, `Catégorie` (parsés avec SheetJS). L'import de FEC
-(Fichier des Écritures Comptables) n'est **pas** géré dans cette V2 — c'est
-noté ici comme TODO pour une itération future, le format FEC demandant un
-mapping comptable plus complexe qui dépasse le périmètre de cette version.
+En plus de la saisie manuelle, l'étape 1 du wizard propose d'importer un
+projet entier depuis un fichier Excel (`lib/excel/project-template.ts`,
+`lib/excel/import-project.ts`) :
+
+1. L'utilisateur télécharge un modèle vierge (feuille « Hyp » + guide),
+   pré-rempli avec une ligne d'exemple par tableau.
+2. Il le complète avec ses propres données (projet, sources de revenus,
+   charges fixes/variables, investissements, financement).
+3. Il dépose le fichier rempli : toutes les étapes du wizard se pré-remplissent
+   automatiquement, avec des avertissements affichés pour toute donnée
+   manquante ou plan de financement déséquilibré.
+
+Le modèle réutilise exactement le même gabarit de lignes/colonnes que la
+feuille « Hyp » de l'export Excel (`lib/excel/project-sheet-layout.ts`, seule
+source de vérité partagée par l'export et l'import) — un utilisateur peut
+donc aussi bien remplir le modèle vierge que ré-importer un classeur déjà
+exporté par FinAxis pour mettre à jour un projet. Le parsing est
+volontairement strict sur cette structure : FinAxis ne peut pas deviner la
+mise en page d'un tableur quelconque déjà existant chez l'utilisateur, d'où
+le modèle fourni.
+
+L'étape 3 du wizard garde par ailleurs son import ciblé de charges (fichiers
+`.xlsx` / `.csv` avec des colonnes `Nom`, `Montant`, `Catégorie`), pour ceux
+qui n'ont qu'une liste de charges à ajouter sans repartir du modèle complet.
+
+L'import de FEC (Fichier des Écritures Comptables) n'est **pas** géré dans
+cette V2 — c'est noté ici comme TODO pour une itération future, le format FEC
+demandant un mapping comptable plus complexe qui dépasse le périmètre de
+cette version.
 
 ## Passer en multi-utilisateur (Supabase / Prisma)
 

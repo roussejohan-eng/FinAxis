@@ -13,6 +13,7 @@ import type {
   SeasonalityProfile,
   VariableExpense,
 } from "@/lib/finance/types";
+import type { ParsedProjectData } from "@/lib/excel/project-sheet-layout";
 
 export interface WizardDraft {
   id: string;
@@ -89,6 +90,7 @@ interface WizardStore {
   setBankLoan: (patch: Partial<Financing["bankLoan"]>) => void;
 
   loadDraftFromProject: (project: Project) => void;
+  loadDraftFromImport: (data: ParsedProjectData) => void;
   reset: () => void;
   toProject: () => Project;
 }
@@ -215,6 +217,25 @@ export const useWizardStore = create<WizardStore>()(
           },
           currentStep: 0,
         }),
+
+      loadDraftFromImport: (data) =>
+        set((s) => ({
+          draft: {
+            ...s.draft,
+            name: data.name,
+            sector: data.sector,
+            legalStatus: data.legalStatus,
+            startDate: data.startDate,
+            initialCash: data.initialCash,
+            seasonality: data.seasonality,
+            revenueSources:
+              data.revenueSources.length > 0 ? data.revenueSources : s.draft.revenueSources,
+            fixedExpenses: data.fixedExpenses,
+            variableExpenses: data.variableExpenses,
+            investments: data.investments,
+            financing: data.financing,
+          },
+        })),
 
       reset: () => set({ draft: defaultDraft(), currentStep: 0 }),
 

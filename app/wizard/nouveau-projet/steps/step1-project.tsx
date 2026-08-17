@@ -16,9 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WizardNavButtons } from "@/components/wizard/nav-buttons";
+import { ExcelImportCard } from "@/components/wizard/excel-import-card";
 import { SECTOR_OPTIONS, LEGAL_STATUS_OPTIONS } from "@/lib/wizard/options";
 import { SEASONALITY_DESCRIPTIONS, SEASONALITY_LABELS } from "@/lib/finance/seasonality";
 import type { LegalStatus, Sector, SeasonalityProfile } from "@/lib/finance/types";
+import type { ParsedProjectData } from "@/lib/excel/project-sheet-layout";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -41,12 +43,14 @@ const SEASONALITY_ICONS: Record<SeasonalityProfile, typeof Sun> = {
 export function Step1Project({ onNext }: { onNext: () => void }) {
   const draft = useWizardStore((s) => s.draft);
   const setProjectInfo = useWizardStore((s) => s.setProjectInfo);
+  const loadDraftFromImport = useWizardStore((s) => s.loadDraftFromImport);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isValid },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -74,9 +78,27 @@ export function Step1Project({ onNext }: { onNext: () => void }) {
 
   const onSubmit = () => onNext();
 
+  const handleImported = (data: ParsedProjectData) => {
+    loadDraftFromImport(data);
+    // Ce formulaire est déjà monté : ses valeurs par défaut ont été figées
+    // au premier rendu et ne se remettront pas à jour toutes seules quand
+    // le store change. On les réinitialise donc explicitement ici. Les
+    // autres étapes (revenus, charges, investissements, financement) liront
+    // le brouillon à jour lors de leur propre montage, sans ce problème.
+    reset({
+      name: data.name,
+      sector: data.sector,
+      legalStatus: data.legalStatus,
+      startDate: data.startDate,
+      initialCash: data.initialCash,
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <ExcelImportCard onImported={handleImported} />
+
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="name">Nom du projet</Label>
           <Input id="name" placeholder="Ex : Atelier Lumière" {...register("name")} aria-invalid={!!errors.name} />
