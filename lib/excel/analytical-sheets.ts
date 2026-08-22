@@ -9,6 +9,16 @@ import {
   MAX_VARIABLE,
   ROW as HYP,
 } from "./project-sheet-layout";
+import type { StyleRegion } from "./xlsx-polish";
+
+/** Fusionne A1:{lastCol}1 en bandeau de titre — appelé après avoir posé `!ref`. */
+function titleMerge(lastCol: number): NonNullable<XLSX.WorkSheet["!merges"]> {
+  return [{ s: { r: 0, c: 0 }, e: { r: 0, c: lastCol } }];
+}
+
+function rangeRef(fromCol: number, toCol: number, row: number): string {
+  return `${XLSX.utils.encode_col(fromCol)}${row}:${XLSX.utils.encode_col(toCol)}${row}`;
+}
 
 // -- Onglets analytiques, entièrement pilotés par formules -------------
 // Partagés entre le dossier exporté (generate.ts, sur les vraies données
@@ -45,7 +55,7 @@ function sourceVolumeAtMonth(volumeM1: number, volumeM12: number, month: number)
   return volumeM1 + ((volumeM12 - volumeM1) * (month - 1)) / 11;
 }
 
-export function buildRevenusSheet(project: Project, results: ProjectResults): XLSX.WorkSheet {
+export function buildRevenusSheet(project: Project, results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Revenus");
 
@@ -111,11 +121,26 @@ export function buildRevenusSheet(project: Project, results: ProjectResults): XL
     setFormula(ws, col, 33, `SUM(${colLetter}22:${colLetter}31)`, volumesByMonth[m]);
   });
 
+  ws["!merges"] = titleMerge(13);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 13, 1) },
+    { kind: "header", ref: rangeRef(0, 13, 3) },
+    { kind: "header", ref: rangeRef(0, 12, 21) },
+    {
+      kind: "total",
+      cells: [
+        { ref: "A15" },
+        ...MONTH_COLS.map((col) => ({ ref: `${XLSX.utils.encode_col(col)}15`, format: "eur" as const })),
+        { ref: "N15", format: "eur" },
+      ],
+    },
+  ];
+  return { ws, regions };
 }
 
-export function buildFinancementSheet(project: Project, results: ProjectResults): XLSX.WorkSheet {
+export function buildFinancementSheet(project: Project, results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Plan de financement");
 
@@ -238,13 +263,32 @@ export function buildFinancementSheet(project: Project, results: ProjectResults)
     EUR_FORMAT
   );
 
+  ws["!merges"] = titleMerge(5);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 5, 1) },
+    { kind: "sectionLabel", ref: "A3" },
+    { kind: "sectionLabel", ref: "A9" },
+    { kind: "header", ref: rangeRef(0, 5, 19) },
+    {
+      kind: "total",
+      cells: [
+        { ref: "A7" },
+        { ref: "B7", format: "eur" },
+        { ref: "A14" },
+        { ref: "B14", format: "eur" },
+        { ref: "A16" },
+        { ref: "B16", format: "eur" },
+      ],
+    },
+  ];
+  return { ws, regions };
 }
 
 export const FIN_INTEREST_Y1_ROW = 20 + LOAN_MONTHS_TEMPLATE + 1;
 
-export function buildCompteResultatSheet(results: ProjectResults): XLSX.WorkSheet {
+export function buildCompteResultatSheet(results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Compte de résultat");
 
@@ -309,11 +353,26 @@ export function buildCompteResultatSheet(results: ProjectResults): XLSX.WorkShee
   setFormula(ws, 2, 12, "C10-C11", y2.netResult, EUR_FORMAT);
   setFormula(ws, 3, 12, "D10-D11", y3.netResult, EUR_FORMAT);
 
+  ws["!merges"] = titleMerge(3);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 3, 1) },
+    { kind: "header", ref: rangeRef(0, 3, 3) },
+    {
+      kind: "total",
+      cells: [
+        { ref: "A12" },
+        { ref: "B12", format: "eur" },
+        { ref: "C12", format: "eur" },
+        { ref: "D12", format: "eur" },
+      ],
+    },
+  ];
+  return { ws, regions };
 }
 
-export function buildTresorerieSheet(results: ProjectResults): XLSX.WorkSheet {
+export function buildTresorerieSheet(results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Trésorerie (année 1)");
 
@@ -382,11 +441,17 @@ export function buildTresorerieSheet(results: ProjectResults): XLSX.WorkSheet {
     );
   }
 
+  ws["!merges"] = titleMerge(8);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 8, 1) },
+    { kind: "header", ref: rangeRef(0, 8, 3) },
+  ];
+  return { ws, regions };
 }
 
-export function buildSeuilSheet(results: ProjectResults): XLSX.WorkSheet {
+export function buildSeuilSheet(results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Seuil de rentabilité");
 
@@ -420,11 +485,26 @@ export function buildSeuilSheet(results: ProjectResults): XLSX.WorkSheet {
   setLabel(ws, 0, 9, "Équivalent MRR");
   cols.forEach((c, i) => setFormula(ws, i + 1, 9, `${c}7/12`, breakEven[i].mrrEquivalent, EUR_FORMAT));
 
+  ws["!merges"] = titleMerge(3);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 3, 1) },
+    { kind: "header", ref: rangeRef(0, 3, 3) },
+    {
+      kind: "total",
+      cells: [
+        { ref: "A7" },
+        { ref: "B7", format: "eur" },
+        { ref: "C7", format: "eur" },
+        { ref: "D7", format: "eur" },
+      ],
+    },
+  ];
+  return { ws, regions };
 }
 
-export function buildKpiSheet(results: ProjectResults): XLSX.WorkSheet {
+export function buildKpiSheet(results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — KPIs");
 
@@ -447,8 +527,11 @@ export function buildKpiSheet(results: ProjectResults): XLSX.WorkSheet {
   setLabel(ws, 0, 10, "Point mort Année 1 (jours)");
   setFormula(ws, 1, 10, "Seuil!B8", results.breakEven.years[0].breakEvenDays);
 
+  ws["!merges"] = titleMerge(1);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [{ kind: "title", ref: rangeRef(0, 1, 1) }];
+  return { ws, regions };
 }
 
 /**
@@ -457,7 +540,7 @@ export function buildKpiSheet(results: ProjectResults): XLSX.WorkSheet {
  * Revenus/Trésorerie ; seules les lignes « Réel (à saisir) » sont des
  * valeurs éditables (0 par défaut), l'écart se calcule tout seul.
  */
-export function buildSuiviSheet(results: ProjectResults): XLSX.WorkSheet {
+export function buildSuiviSheet(results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Suivi réel vs budget (année 1)");
   setLabel(
@@ -491,16 +574,24 @@ export function buildSuiviSheet(results: ProjectResults): XLSX.WorkSheet {
     return `Tresorerie!F${trRow}`;
   }
 
-  let row = 6;
-  row = block(row, "CHIFFRE D'AFFAIRES HT", results.revenue.totalMonthlyYear1);
+  const block1Row = 6;
+  const block2Row = block(block1Row, "CHIFFRE D'AFFAIRES HT", results.revenue.totalMonthlyYear1);
   block(
-    row,
+    block2Row,
     "TRÉSORERIE CUMULÉE",
     results.cashFlow.months.map((m) => m.cumulativeCash)
   );
 
+  ws["!merges"] = titleMerge(12);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 12, 1) },
+    { kind: "header", ref: rangeRef(0, 12, 4) },
+    { kind: "sectionLabel", ref: `A${block1Row}` },
+    { kind: "sectionLabel", ref: `A${block2Row}` },
+  ];
+  return { ws, regions };
 }
 
 /**
@@ -512,7 +603,7 @@ export function buildSuiviSheet(results: ProjectResults): XLSX.WorkSheet {
  * graphique dans le fichier — seule la version payante le permet. Les
  * données sont donc livrées toutes prêtes, à un clic d'un graphique.
  */
-export function buildSyntheseSheet(project: Project, results: ProjectResults): XLSX.WorkSheet {
+export function buildSyntheseSheet(project: Project, results: ProjectResults): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   setLabel(ws, 0, 1, "FinAxis — Synthèse");
   setLabel(
@@ -601,6 +692,28 @@ export function buildSyntheseSheet(project: Project, results: ProjectResults): X
   setFormula(ws, 2, resultRow + 2, "CR!C12", years[1].netResult, EUR_FORMAT);
   setFormula(ws, 3, resultRow + 2, "CR!D12", years[2].netResult, EUR_FORMAT);
 
+  ws["!merges"] = titleMerge(3);
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: rangeRef(0, 3, 1) },
+    { kind: "sectionLabel", ref: "A4" },
+    { kind: "sectionLabel", ref: "A11" },
+    { kind: "sectionLabel", ref: `A${repartitionRow}` },
+    { kind: "sectionLabel", ref: `A${tresoRow}` },
+    { kind: "sectionLabel", ref: `A${resultRow}` },
+    { kind: "header", ref: rangeRef(0, 3, 12) },
+    { kind: "header", ref: rangeRef(0, 11, tresoRow + 1) },
+    { kind: "header", ref: rangeRef(0, 3, resultRow + 1) },
+    {
+      kind: "total",
+      cells: [
+        { ref: "A" + totalSourcesRow },
+        { ref: "B" + totalSourcesRow, format: "eur" },
+        { ref: "C" + totalSourcesRow, format: "eur" },
+        { ref: "D" + totalSourcesRow, format: "eur" },
+      ],
+    },
+  ];
+  return { ws, regions };
 }

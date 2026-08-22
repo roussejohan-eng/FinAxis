@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import type { Project } from "@/lib/finance/types";
 import type { ProjectResults } from "@/lib/finance";
 import { setLabel, finalizeSheet } from "./sheet-helpers";
-import { buildEmptyHypSheet } from "./project-sheet-layout";
+import { buildEmptyHypSheet, hypStylePlanRegions } from "./project-sheet-layout";
 import {
   buildCompteResultatSheet,
   buildFinancementSheet,
@@ -13,6 +13,7 @@ import {
   buildSyntheseSheet,
   buildTresorerieSheet,
 } from "./analytical-sheets";
+import { polishWorkbook, type SheetStylePlan } from "./xlsx-polish";
 
 function buildHypSheet(project: Project): XLSX.WorkSheet {
   return buildEmptyHypSheet(project);
@@ -54,23 +55,60 @@ function buildGuideSheet(project: Project): XLSX.WorkSheet {
     "d'attestation comptable. Généré avec FinAxis.",
   ];
   lines.forEach((line, i) => setLabel(ws, 0, i + 1, line));
+  ws["!cols"] = [{ wch: 90 }];
   finalizeSheet(ws);
   return ws;
 }
 
-export function buildProjectWorkbook(project: Project, results: ProjectResults): XLSX.WorkBook {
+/** Exporté pour les tests : construit le classeur brut et son plan de mise en forme séparément, sans passer par le téléchargement navigateur. */
+export function buildWorkbookAndPlans(project: Project, results: ProjectResults): { wb: XLSX.WorkBook; plans: SheetStylePlan[] } {
   const wb = XLSX.utils.book_new();
+  const plans: SheetStylePlan[] = [];
+
   XLSX.utils.book_append_sheet(wb, buildGuideSheet(project), "Guide");
+  plans.push({ sheetName: "Guide", regions: [{ kind: "title", ref: "A1:A1" }] });
+
   XLSX.utils.book_append_sheet(wb, buildHypSheet(project), "Hyp");
-  XLSX.utils.book_append_sheet(wb, buildRevenusSheet(project, results), "Revenus");
-  XLSX.utils.book_append_sheet(wb, buildCompteResultatSheet(results), "CR");
-  XLSX.utils.book_append_sheet(wb, buildFinancementSheet(project, results), "Financement");
-  XLSX.utils.book_append_sheet(wb, buildTresorerieSheet(results), "Tresorerie");
-  XLSX.utils.book_append_sheet(wb, buildSeuilSheet(results), "Seuil");
-  XLSX.utils.book_append_sheet(wb, buildKpiSheet(results), "KPIs");
-  XLSX.utils.book_append_sheet(wb, buildSuiviSheet(results), "Suivi");
-  XLSX.utils.book_append_sheet(wb, buildSyntheseSheet(project, results), "Synthese");
-  return wb;
+  plans.push({ sheetName: "Hyp", regions: hypStylePlanRegions() });
+
+  const revenus = buildRevenusSheet(project, results);
+  XLSX.utils.book_append_sheet(wb, revenus.ws, "Revenus");
+  plans.push({ sheetName: "Revenus", regions: revenus.regions });
+
+  const cr = buildCompteResultatSheet(results);
+  XLSX.utils.book_append_sheet(wb, cr.ws, "CR");
+  plans.push({ sheetName: "CR", regions: cr.regions });
+
+  const financement = buildFinancementSheet(project, results);
+  XLSX.utils.book_append_sheet(wb, financement.ws, "Financement");
+  plans.push({ sheetName: "Financement", regions: financement.regions });
+
+  const tresorerie = buildTresorerieSheet(results);
+  XLSX.utils.book_append_sheet(wb, tresorerie.ws, "Tresorerie");
+  plans.push({ sheetName: "Tresorerie", regions: tresorerie.regions });
+
+  const seuil = buildSeuilSheet(results);
+  XLSX.utils.book_append_sheet(wb, seuil.ws, "Seuil");
+  plans.push({ sheetName: "Seuil", regions: seuil.regions });
+
+  const kpis = buildKpiSheet(results);
+  XLSX.utils.book_append_sheet(wb, kpis.ws, "KPIs");
+  plans.push({ sheetName: "KPIs", regions: kpis.regions });
+
+  const suivi = buildSuiviSheet(results);
+  XLSX.utils.book_append_sheet(wb, suivi.ws, "Suivi");
+  plans.push({ sheetName: "Suivi", regions: suivi.regions });
+
+  const synthese = buildSyntheseSheet(project, results);
+  XLSX.utils.book_append_sheet(wb, synthese.ws, "Synthese");
+  plans.push({ sheetName: "Synthese", regions: synthese.regions });
+
+  return { wb, plans };
+}
+
+/** Classeur brut (sans mise en forme) — utilisé par les tests qui inspectent les cellules directement. */
+export function buildProjectWorkbook(project: Project, results: ProjectResults): XLSX.WorkBook {
+  return buildWorkbookAndPlans(project, results).wb;
 }
 
 function slugify(name: string): string {
@@ -84,8 +122,18 @@ function slugify(name: string): string {
   );
 }
 
-export function downloadProjectExcel(project: Project, results: ProjectResults) {
-  const wb = buildProjectWorkbook(project, results);
+export async function downloadProjectExcel(project: Project, results: ProjectResults) {
+  const { wb, plans } = buildWorkbookAndPlans(project, results);
+  const rawBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" }) as ArrayBuffer;
+  const polished = await polishWorkbook(new Uint8Array(rawBuffer), plans);
   const filename = `finaxis-${slugify(project.name)}-dossier-financier.xlsx`;
-  XLSX.writeFile(wb, filename, { compression: true });
+  const blob = new Blob([polished as BlobPart], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

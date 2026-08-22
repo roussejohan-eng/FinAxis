@@ -220,8 +220,72 @@ export function buildEmptyHypSheet(project: Project): XLSX.WorkSheet {
   const ws: XLSX.WorkSheet = {};
   writeProjectToHypSheet(ws, project);
   writeSeasonalityCoefficients(ws, project);
+  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }]; // bandeau de titre A1:F1
+  ws["!cols"] = [{ wch: 32 }, { wch: 22 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 22 }];
   finalizeSheet(ws);
   return ws;
+}
+
+/**
+ * Plan de mise en forme de la feuille « Hyp » : bandeau de titre, libellés
+ * de section en gras, en-têtes de tableau, et surtout les cellules de
+ * saisie teintées en bleu (y compris les lignes encore vierges au-delà des
+ * exemples) — la seule feuille que l'utilisateur est censé modifier.
+ */
+export function hypStylePlanRegions(): import("./xlsx-polish").StyleRegion[] {
+  const colRange = (from: number, to: number, row: number) =>
+    `${XLSX.utils.encode_col(from)}${row}:${XLSX.utils.encode_col(to)}${row}`;
+  const inputRange = (
+    fromCol: number,
+    toCol: number,
+    fromRow: number,
+    toRow: number,
+    format?: "eur" | "pct" | "none"
+  ) => {
+    const cells: { ref: string; format?: "eur" | "pct" | "none" }[] = [];
+    for (let r = fromRow; r <= toRow; r++) {
+      for (let c = fromCol; c <= toCol; c++) {
+        cells.push({ ref: `${XLSX.utils.encode_col(c)}${r}`, format });
+      }
+    }
+    return cells;
+  };
+
+  return [
+    { kind: "title", ref: colRange(0, 5, 1) },
+    { kind: "sectionLabel", ref: colRange(0, 0, ROW.sourcesHeader - 1) },
+    { kind: "sectionLabel", ref: colRange(0, 0, ROW.fixedHeader - 1) },
+    { kind: "sectionLabel", ref: colRange(0, 0, ROW.variableHeader - 1) },
+    { kind: "sectionLabel", ref: colRange(0, 0, ROW.investHeader - 1) },
+    { kind: "sectionLabel", ref: colRange(0, 0, ROW.financingHeader) },
+    { kind: "header", ref: colRange(COL.label, COL.sourceType, ROW.sourcesHeader) },
+    { kind: "header", ref: colRange(COL.label, COL.fixedCategory, ROW.fixedHeader) },
+    { kind: "header", ref: colRange(COL.label, COL.variableCategory, ROW.variableHeader) },
+    { kind: "header", ref: colRange(COL.label, COL.investYears, ROW.investHeader) },
+    // Informations générales (lignes 3 à 14) — colonne B. Seule ROW.initialCash
+    // (ligne 7) est une devise ; le reste est du texte ou un simple nombre.
+    { kind: "input", cells: inputRange(COL.value, COL.value, ROW.name, ROW.initialCash - 1, "none") },
+    { kind: "input", cells: inputRange(COL.value, COL.value, ROW.initialCash, ROW.initialCash, "eur") },
+    { kind: "input", cells: inputRange(COL.value, COL.value, ROW.seasonality, ROW.isThreshold, "none") },
+    // Les 4 tableaux — toutes les lignes réservées, y compris vierges.
+    { kind: "input", cells: inputRange(COL.sourceName, COL.sourceName, ROW.sourcesStart, ROW.sourcesStart + MAX_SOURCES - 1, "none") },
+    { kind: "input", cells: inputRange(COL.sourcePrice, COL.sourcePrice, ROW.sourcesStart, ROW.sourcesStart + MAX_SOURCES - 1, "eur") },
+    { kind: "input", cells: inputRange(COL.sourceVolM1, COL.sourceType, ROW.sourcesStart, ROW.sourcesStart + MAX_SOURCES - 1, "none") },
+    { kind: "input", cells: inputRange(COL.fixedName, COL.fixedName, ROW.fixedStart, ROW.fixedStart + MAX_FIXED - 1, "none") },
+    { kind: "input", cells: inputRange(COL.fixedAmount, COL.fixedAmount, ROW.fixedStart, ROW.fixedStart + MAX_FIXED - 1, "eur") },
+    { kind: "input", cells: inputRange(COL.fixedCategory, COL.fixedCategory, ROW.fixedStart, ROW.fixedStart + MAX_FIXED - 1, "none") },
+    { kind: "input", cells: inputRange(COL.variableName, COL.variableName, ROW.variableStart, ROW.variableStart + MAX_VARIABLE - 1, "none") },
+    { kind: "input", cells: inputRange(COL.variableMode, COL.variableMode, ROW.variableStart, ROW.variableStart + MAX_VARIABLE - 1, "none") },
+    { kind: "input", cells: inputRange(COL.variablePercent, COL.variableUnitCost, ROW.variableStart, ROW.variableStart + MAX_VARIABLE - 1, "eur") },
+    { kind: "input", cells: inputRange(COL.variableCategory, COL.variableCategory, ROW.variableStart, ROW.variableStart + MAX_VARIABLE - 1, "none") },
+    { kind: "input", cells: inputRange(COL.investName, COL.investName, ROW.investStart, ROW.investStart + MAX_INVESTMENTS - 1, "none") },
+    { kind: "input", cells: inputRange(COL.investAmount, COL.investAmount, ROW.investStart, ROW.investStart + MAX_INVESTMENTS - 1, "eur") },
+    { kind: "input", cells: inputRange(COL.investYears, COL.investYears, ROW.investStart, ROW.investStart + MAX_INVESTMENTS - 1, "none") },
+    // Financement — colonne B.
+    { kind: "input", cells: inputRange(COL.value, COL.value, ROW.personalContribution, ROW.loanAmount, "eur") },
+    { kind: "input", cells: inputRange(COL.value, COL.value, ROW.loanRate, ROW.loanMonths, "none") },
+    { kind: "input", cells: inputRange(COL.value, COL.value, ROW.subsidies, ROW.subsidies, "eur") },
+  ];
 }
 
 // -- Lecture (import) ---------------------------------------------------

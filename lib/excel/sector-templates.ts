@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import type { Project } from "@/lib/finance/types";
 import { computeProjectResults } from "@/lib/finance";
-import { HYP_SHEET_NAME, buildEmptyHypSheet } from "./project-sheet-layout";
+import { HYP_SHEET_NAME, buildEmptyHypSheet, hypStylePlanRegions } from "./project-sheet-layout";
 import { finalizeSheet, setLabel } from "./sheet-helpers";
 import {
   buildCompteResultatSheet,
@@ -14,6 +14,7 @@ import {
   buildTresorerieSheet,
 } from "./analytical-sheets";
 import { SECTOR_TEMPLATES, type SectorTemplateId, type SectorTemplateMeta } from "./sector-templates-meta";
+import { polishWorkbook, type SheetStylePlan, type StyleRegion } from "./xlsx-polish";
 
 // -- Modèles de départ par grande famille de secteur ---------------------
 // Trois modèles plutôt qu'un par secteur exact (7 secteurs au wizard) :
@@ -221,10 +222,15 @@ const TAB_DESCRIPTIONS: [string, string][] = [
   ["Synthese", "chiffres clés et tableaux prêts à sélectionner pour insérer un graphique."],
 ];
 
-function buildTemplateCoverSheet(meta: SectorTemplateMeta): XLSX.WorkSheet {
+function buildTemplateCoverSheet(meta: SectorTemplateMeta): { ws: XLSX.WorkSheet; regions: StyleRegion[] } {
   const ws: XLSX.WorkSheet = {};
   let row = 1;
+  const sectionRows: number[] = [];
   const line = (text: string) => setLabel(ws, 0, row++, text);
+  const sectionTitle = (text: string) => {
+    sectionRows.push(row);
+    line(text);
+  };
   const blank = () => {
     row++;
   };
@@ -232,7 +238,7 @@ function buildTemplateCoverSheet(meta: SectorTemplateMeta): XLSX.WorkSheet {
   line("FINAXIS — MODÈLE DE PRÉVISIONNEL FINANCIER");
   line(`Secteur : ${meta.label} (${meta.coversText}) — ${meta.description}`);
   blank();
-  line("COMMENT UTILISER CE FICHIER");
+  sectionTitle("COMMENT UTILISER CE FICHIER");
   line("1. Ouvrez l'onglet « Hyp » : remplacez les lignes d'exemple par vos propres chiffres");
   line("   (une ligne = une source de revenus, une charge, un investissement).");
   line("2. N'oubliez pas de renseigner le nom de votre projet (onglet Hyp, cellule B3).");
@@ -246,21 +252,21 @@ function buildTemplateCoverSheet(meta: SectorTemplateMeta): XLSX.WorkSheet {
   line("6. Une fois complété, déposez ce fichier sur la page de création de projet de FinAxis");
   line("   (« Importer un projet existant »).");
   blank();
-  line("CONTENU DU CLASSEUR");
+  sectionTitle("CONTENU DU CLASSEUR");
   TAB_DESCRIPTIONS.forEach(([name, desc], i) => line(`${i + 1}. ${name} — ${desc}`));
   blank();
-  line("CODE COULEUR (convention — à appliquer via la mise en forme de votre tableur si non visible)");
+  sectionTitle("CODE COULEUR (convention — à appliquer via la mise en forme de votre tableur si non visible)");
   line("  - Cellule d'entrée : à modifier (onglet Hyp, et les lignes « Réel (à saisir) » de Suivi)");
   line("  - Cellule de calcul : ne pas modifier (formule automatique, tous les autres onglets)");
   line("  - Cellule de résultat final : synthèse (KPIs, Synthese)");
   blank();
-  line("ATTENTION");
+  sectionTitle("ATTENTION");
   line("Les hypothèses de volumes, prix et charges de ce modèle sont des exemples réalistes");
   line("destinés à faire tourner le classeur. Remplacez-les par vos propres chiffres — si besoin");
   line("validés avec votre expert-comptable, un incubateur ou votre banquier — avant toute");
   line("présentation officielle.");
   blank();
-  line("ACCÈS RAPIDE AUX ONGLETS");
+  sectionTitle("ACCÈS RAPIDE AUX ONGLETS");
   for (const [name] of TAB_DESCRIPTIONS) {
     const address = `A${row}`;
     setLabel(ws, 0, row, `→ ${name}`);
@@ -270,10 +276,16 @@ function buildTemplateCoverSheet(meta: SectorTemplateMeta): XLSX.WorkSheet {
 
   ws["!cols"] = [{ wch: 90 }];
   finalizeSheet(ws);
-  return ws;
+
+  const regions: StyleRegion[] = [
+    { kind: "title", ref: "A1:A1" },
+    ...sectionRows.map((r): StyleRegion => ({ kind: "sectionLabel", ref: `A${r}` })),
+  ];
+  return { ws, regions };
 }
 
-export function buildSectorTemplateWorkbook(id: SectorTemplateId): XLSX.WorkBook {
+/** Exporté pour les tests : construit le classeur brut et son plan de mise en forme séparément, sans passer par le téléchargement navigateur. */
+export function buildWorkbookAndPlans(id: SectorTemplateId): { wb: XLSX.WorkBook; plans: SheetStylePlan[] } {
   const meta = SECTOR_TEMPLATES.find((t) => t.id === id) ?? SECTOR_TEMPLATES[0];
   const project = exampleProjectFor(meta.id);
   // Mêmes formules ET mêmes valeurs déjà calculées que le dossier final
@@ -283,17 +295,53 @@ export function buildSectorTemplateWorkbook(id: SectorTemplateId): XLSX.WorkBook
   const results = computeProjectResults(project);
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, buildTemplateCoverSheet(meta), "Guide");
+  const plans: SheetStylePlan[] = [];
+
+  const cover = buildTemplateCoverSheet(meta);
+  XLSX.utils.book_append_sheet(wb, cover.ws, "Guide");
+  plans.push({ sheetName: "Guide", regions: cover.regions });
+
   XLSX.utils.book_append_sheet(wb, buildEmptyHypSheet(project), HYP_SHEET_NAME);
-  XLSX.utils.book_append_sheet(wb, buildRevenusSheet(project, results), "Revenus");
-  XLSX.utils.book_append_sheet(wb, buildCompteResultatSheet(results), "CR");
-  XLSX.utils.book_append_sheet(wb, buildFinancementSheet(project, results), "Financement");
-  XLSX.utils.book_append_sheet(wb, buildTresorerieSheet(results), "Tresorerie");
-  XLSX.utils.book_append_sheet(wb, buildSeuilSheet(results), "Seuil");
-  XLSX.utils.book_append_sheet(wb, buildSuiviSheet(results), "Suivi");
-  XLSX.utils.book_append_sheet(wb, buildKpiSheet(results), "KPIs");
-  XLSX.utils.book_append_sheet(wb, buildSyntheseSheet(project, results), "Synthese");
-  return wb;
+  plans.push({ sheetName: HYP_SHEET_NAME, regions: hypStylePlanRegions() });
+
+  const revenus = buildRevenusSheet(project, results);
+  XLSX.utils.book_append_sheet(wb, revenus.ws, "Revenus");
+  plans.push({ sheetName: "Revenus", regions: revenus.regions });
+
+  const cr = buildCompteResultatSheet(results);
+  XLSX.utils.book_append_sheet(wb, cr.ws, "CR");
+  plans.push({ sheetName: "CR", regions: cr.regions });
+
+  const financement = buildFinancementSheet(project, results);
+  XLSX.utils.book_append_sheet(wb, financement.ws, "Financement");
+  plans.push({ sheetName: "Financement", regions: financement.regions });
+
+  const tresorerie = buildTresorerieSheet(results);
+  XLSX.utils.book_append_sheet(wb, tresorerie.ws, "Tresorerie");
+  plans.push({ sheetName: "Tresorerie", regions: tresorerie.regions });
+
+  const seuil = buildSeuilSheet(results);
+  XLSX.utils.book_append_sheet(wb, seuil.ws, "Seuil");
+  plans.push({ sheetName: "Seuil", regions: seuil.regions });
+
+  const suivi = buildSuiviSheet(results);
+  XLSX.utils.book_append_sheet(wb, suivi.ws, "Suivi");
+  plans.push({ sheetName: "Suivi", regions: suivi.regions });
+
+  const kpis = buildKpiSheet(results);
+  XLSX.utils.book_append_sheet(wb, kpis.ws, "KPIs");
+  plans.push({ sheetName: "KPIs", regions: kpis.regions });
+
+  const synthese = buildSyntheseSheet(project, results);
+  XLSX.utils.book_append_sheet(wb, synthese.ws, "Synthese");
+  plans.push({ sheetName: "Synthese", regions: synthese.regions });
+
+  return { wb, plans };
+}
+
+/** Classeur brut (sans mise en forme) — utilisé par les tests qui inspectent les cellules directement. */
+export function buildSectorTemplateWorkbook(id: SectorTemplateId): XLSX.WorkBook {
+  return buildWorkbookAndPlans(id).wb;
 }
 
 const FILE_SUFFIX: Record<SectorTemplateId, string> = {
@@ -302,7 +350,18 @@ const FILE_SUFFIX: Record<SectorTemplateId, string> = {
   artisanat: "artisanat-production",
 };
 
-export function downloadSectorTemplate(id: SectorTemplateId) {
-  const wb = buildSectorTemplateWorkbook(id);
-  XLSX.writeFile(wb, `finaxis-modele-${FILE_SUFFIX[id]}.xlsx`, { compression: true });
+export async function downloadSectorTemplate(id: SectorTemplateId) {
+  const { wb, plans } = buildWorkbookAndPlans(id);
+  const rawBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" }) as ArrayBuffer;
+  const polished = await polishWorkbook(new Uint8Array(rawBuffer), plans);
+  const filename = `finaxis-modele-${FILE_SUFFIX[id]}.xlsx`;
+  const blob = new Blob([polished as BlobPart], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

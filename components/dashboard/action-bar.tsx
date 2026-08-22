@@ -26,7 +26,7 @@ export function DashboardActionBar({ project, results }: { project: Project; res
     setExcelLoading(true);
     try {
       const { downloadProjectExcel } = await import("@/lib/excel/generate");
-      downloadProjectExcel(project, results);
+      await downloadProjectExcel(project, results);
     } finally {
       setExcelLoading(false);
     }

@@ -68,7 +68,8 @@ lib/pdf/                    Génération du PDF (@react-pdf/renderer) : gabarits
                              tableaux, polices Roboto embarquées, graphique vectoriel
 lib/excel/                  Génération du classeur Excel (SheetJS) avec formules réelles —
                              analytical-sheets.ts (onglets calculés, partagés export/modèles),
-                             sector-templates.ts (3 modèles de départ par secteur)
+                             sector-templates.ts (3 modèles de départ par secteur),
+                             xlsx-polish.ts (mise en forme visuelle par post-traitement OOXML)
 lib/pdf-import/              Lecture d'un PDF déposé (pdfjs-dist) : extraction de texte,
                              parseur FinAxis haute-fidélité, parseur générique best-effort
 lib/wizard/                 Constantes et options du wizard
@@ -163,21 +164,52 @@ l'ouverture plutôt que d'afficher du vide. Un test de non-régression
 (`generate.smoke.test.ts`) écrit puis relit réellement le classeur pour
 vérifier que ce n'est pas seulement vrai en mémoire.
 
+### Mise en forme visuelle (`lib/excel/xlsx-polish.ts`)
+
+La bibliothèque `xlsx` (SheetJS, édition communautaire) ne sait pas écrire
+de mise en forme (couleurs, bordures, quadrillage masqué) — vérifié
+empiriquement : une cellule à laquelle on assigne un style l'ignore
+silencieusement à l'écriture, contrairement à sa documentation officielle
+qui indique explicitement que le style n'est pas conservé en édition
+gratuite. Pour obtenir malgré tout un classeur visuellement soigné,
+`xlsx-polish.ts` poste-traite le fichier `.xlsx` déjà écrit (qui n'est
+qu'une archive ZIP de fichiers XML) avec `jszip`, pour y injecter une
+véritable feuille de styles OOXML — sans jamais toucher aux valeurs et
+formules déjà écrites :
+
+- quadrillage par défaut masqué sur tous les onglets ;
+- bandeau de titre (fond navy, texte blanc) en haut de chaque onglet ;
+- en-têtes de tableau (fond bleu pâle, texte gras, bordure basse) ;
+- lignes de total (gras, bordure haute) — Résultat net, Total besoins,
+  Total ressources... ;
+- cellules de saisie de l'onglet Hyp teintées en turquoise pâle, **y
+  compris les lignes encore vierges** au-delà des exemples (jusqu'aux
+  limites de 10 sources / 20 charges / 10 investissements), pour bien
+  montrer où écrire au-delà des lignes déjà remplies.
+
+Chaque builder de feuille (`analytical-sheets.ts`, `project-sheet-layout.ts`)
+renvoie, en plus de la feuille elle-même, un plan de régions à styler
+(`StyleRegion[]`) exprimé en références de cellules — `generate.ts` et
+`sector-templates.ts` appliquent ce plan après l'écriture du classeur brut.
+Cette approche n'ayant pas de précédent connu dans la bibliothèque, elle est
+validée à trois niveaux : un test dédié (`xlsx-polish.test.ts`) qui vérifie
+l'injection de styles sur un classeur minimal (y compris le cas délicat
+d'une cellule ou d'une ligne entière absente du XML d'origine), un test
+d'intégration (`polish-integration.test.ts`) sur les classeurs réels, et une
+relecture indépendante avec **openpyxl** (Python) en plus de SheetJS — utile
+en l'absence d'un Excel/LibreOffice réel dans l'environnement de
+développement pour une vérification visuelle directe.
+
 Limites connues (documentées dans l'onglet Guide) :
 
 - Les dotations aux amortissements s'arrêtent à la durée saisie par
   investissement (formule `SUMPRODUCT`), comme dans le tableau de bord.
 - Le tableau d'amortissement de l'emprunt est généré sur un gabarit de 60
   périodes ; au-delà, complétez manuellement le modèle.
-- Le classeur est généré avec la bibliothèque `xlsx` (édition communautaire) :
-  les formats de nombre (`#,##0" €"`, `0.0%`), les liens hypertextes internes
-  et les largeurs de colonnes sont conservés à l'écriture, mais ni la mise en
-  forme conditionnelle par couleur (bleu = entrée, noir = calcul, vert =
-  résultat — convention documentée en toutes lettres dans l'onglet Guide, pas
-  appliquée visuellement) ni les graphiques natifs Excel ne sont supportés en
-  écriture par cette édition de la bibliothèque (seule la version payante le
-  permet) — l'onglet Synthese fournit les données déjà prêtes à sélectionner
-  pour qu'un graphique se crée en un clic (Insertion > Graphique) plutôt que
+- Les graphiques natifs Excel ne sont pas supportés en écriture par cette
+  édition de la bibliothèque (seule la version payante le permet) —
+  l'onglet Synthese fournit les données déjà prêtes à sélectionner pour
+  qu'un graphique se crée en un clic (Insertion > Graphique) plutôt que
   d'en embarquer un.
 
 ## Import d'un projet complet depuis Excel ou PDF (étape 1 du wizard)

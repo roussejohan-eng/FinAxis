@@ -18,7 +18,7 @@ export function ProjectImportCard({
 
   const handleDownloadTemplate = async (id: SectorTemplateId) => {
     const { downloadSectorTemplate } = await import("@/lib/excel/sector-templates");
-    downloadSectorTemplate(id);
+    await downloadSectorTemplate(id);
   };
 
   const handleFile = async (file: File) => {
