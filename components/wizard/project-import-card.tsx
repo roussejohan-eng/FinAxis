@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Download, FileText, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ParsedProjectData } from "@/lib/project-import-types";
+import { SECTOR_TEMPLATES, type SectorTemplateId } from "@/lib/excel/sector-templates-meta";
 
 export function ProjectImportCard({
   onImported,
@@ -15,9 +16,9 @@ export function ProjectImportCard({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastImport, setLastImport] = useState<{ fileName: string; warnings: string[] } | null>(null);
 
-  const handleDownloadTemplate = async () => {
-    const { downloadImportTemplate } = await import("@/lib/excel/project-template");
-    downloadImportTemplate();
+  const handleDownloadTemplate = async (id: SectorTemplateId) => {
+    const { downloadSectorTemplate } = await import("@/lib/excel/sector-templates");
+    downloadSectorTemplate(id);
   };
 
   const handleFile = async (file: File) => {
@@ -49,15 +50,32 @@ export function ProjectImportCard({
           <p className="text-sm font-semibold text-navy-700">Importer un projet existant</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Déposez un dossier financier déjà généré par FinAxis (PDF ou Excel) pour le recharger tel
-            quel, ou téléchargez notre modèle Excel vierge si vous partez de vos propres chiffres.
+            quel, ou partez d&apos;un modèle Excel complet (hypothèses, revenus, compte de résultat,
+            trésorerie, plan de financement...) déjà adapté à votre secteur.
           </p>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button type="button" variant="outline" size="sm" onClick={handleDownloadTemplate}>
-              <Download className="h-4 w-4" aria-hidden />
-              Télécharger le modèle Excel
-            </Button>
+          <div className="mt-4">
+            <p className="text-xs font-medium text-navy-700">
+              Télécharger un modèle Excel selon votre secteur
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SECTOR_TEMPLATES.map((t) => (
+                <Button
+                  key={t.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title={`${t.coversText} — ${t.description}`}
+                  onClick={() => handleDownloadTemplate(t.id)}
+                >
+                  <Download className="h-4 w-4" aria-hidden />
+                  {t.label}
+                </Button>
+              ))}
+            </div>
+          </div>
 
+          <div className="mt-4">
             <Button
               type="button"
               variant="secondary"
@@ -83,9 +101,9 @@ export function ProjectImportCard({
 
           <p className="mt-3 text-xs text-muted-foreground">
             La lecture est fiable pour un PDF ou un Excel déjà généré par FinAxis (tous les champs sont
-            reconnus). Pour un autre document PDF, seuls quelques montants explicitement indiqués
-            (chiffre d&apos;affaires, apport, emprunt...) peuvent être repérés — le reste se complète
-            manuellement dans les étapes suivantes.
+            reconnus, y compris un modèle par secteur complété). Pour un autre document PDF, seuls
+            quelques montants explicitement indiqués (chiffre d&apos;affaires, apport, emprunt...)
+            peuvent être repérés — le reste se complète manuellement dans les étapes suivantes.
           </p>
 
           {status === "error" && errorMessage && (

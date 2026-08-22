@@ -26,15 +26,28 @@ export function setValue(
   ws[address] = cell;
 }
 
+/**
+ * Écrit une cellule de formule AVEC sa valeur déjà calculée (`value`,
+ * requis). SheetJS n'évalue jamais les formules : un tableur qui ouvre le
+ * fichier fera confiance à cette valeur mise en cache jusqu'à son propre
+ * recalcul — et surtout, une cellule `{ t: "n", f }` SANS valeur en cache
+ * est silencieusement supprimée à l'écriture par cette version de la
+ * bibliothèque (vérifié empiriquement), ce qui produisait des feuilles
+ * vides à l'ouverture. `value` doit donc toujours être la valeur réelle
+ * (calculée par lib/finance, la même source de vérité que le tableau de
+ * bord), pas un simple 0 de remplissage : la formule reste éditable dans
+ * le tableur, mais l'affichage initial doit déjà être juste.
+ */
 export function setFormula(
   ws: XLSX.WorkSheet,
   col: number,
   row: number,
   formula: string,
+  value: number,
   numFmt?: string
 ) {
   const address = ref(col, row);
-  const cell: XLSX.CellObject = { t: "n", f: formula };
+  const cell: XLSX.CellObject = { t: "n", v: value, f: formula };
   if (numFmt) cell.z = numFmt;
   ws[address] = cell;
 }

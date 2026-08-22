@@ -52,6 +52,8 @@ describe("Excel workbook generation", () => {
       "Tresorerie",
       "Seuil",
       "KPIs",
+      "Suivi",
+      "Synthese",
     ]);
 
     // Ne doit pas lever d'exception à l'écriture binaire.
@@ -70,5 +72,34 @@ describe("Excel workbook generation", () => {
 
     const revenus = wb.Sheets["Revenus"];
     expect(revenus["B4"]?.f).toContain("Hyp!");
+  });
+
+  // Régression : une cellule de formule sans valeur en cache (`v`) est
+  // silencieusement supprimée par SheetJS à l'écriture binaire — le
+  // classeur s'ouvrait donc avec des onglets calculés vides jusqu'à un
+  // recalcul manuel. Ce test écrit réellement le classeur puis le relit,
+  // comme un utilisateur qui télécharge le fichier et le rouvre.
+  it("survives a real write -> read round-trip with correct cached values, not just in-memory", () => {
+    const project = sampleProject();
+    const results = computeProjectResults(project);
+    const wb = buildProjectWorkbook(project, results);
+    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "buffer" });
+    const reloaded = XLSX.read(buffer, { type: "buffer" });
+
+    const cr = reloaded.Sheets["CR"];
+    expect(cr["B4"]).toBeDefined();
+    expect(cr["B4"].f).toBeDefined();
+    expect(cr["B4"].v).toBeCloseTo(results.incomeStatement.years[0].revenue, 2);
+    expect(cr["B12"].v).toBeCloseTo(results.incomeStatement.years[0].netResult, 2);
+    expect(cr["D12"].v).toBeCloseTo(results.incomeStatement.years[2].netResult, 2);
+
+    const tresorerie = reloaded.Sheets["Tresorerie"];
+    expect(tresorerie["F15"].v).toBeCloseTo(results.cashFlow.endOfYearCash, 2);
+
+    const financement = reloaded.Sheets["Financement"];
+    expect(financement["B20"].v).toBeCloseTo(project.financing.bankLoan.amount, 2);
+
+    const suivi = reloaded.Sheets["Suivi"];
+    expect(suivi["B7"].v).toBeCloseTo(results.revenue.totalMonthlyYear1[0], 2);
   });
 });

@@ -66,7 +66,9 @@ lib/finance/                Moteur de calcul pur, testé (revenus, charges, comp
                              résultat, trésorerie, TVA, financement, seuil de rentabilité)
 lib/pdf/                    Génération du PDF (@react-pdf/renderer) : gabarits de page,
                              tableaux, polices Roboto embarquées, graphique vectoriel
-lib/excel/                  Génération du classeur Excel (SheetJS) avec formules réelles
+lib/excel/                  Génération du classeur Excel (SheetJS) avec formules réelles —
+                             analytical-sheets.ts (onglets calculés, partagés export/modèles),
+                             sector-templates.ts (3 modèles de départ par secteur)
 lib/pdf-import/              Lecture d'un PDF déposé (pdfjs-dist) : extraction de texte,
                              parseur FinAxis haute-fidélité, parseur générique best-effort
 lib/wizard/                 Constantes et options du wizard
@@ -141,12 +143,25 @@ générés et vérifiés visuellement page par page pendant le développement.
 
 ## Export Excel
 
-Le classeur (`lib/excel/`) contient 8 onglets : **Guide**, **Hyp**
+Le classeur (`lib/excel/`) contient 10 onglets : **Guide**, **Hyp**
 (hypothèses), **Revenus**, **CR** (compte de résultat), **Financement**,
-**Tresorerie**, **Seuil**, **KPIs**. Les cellules calculées contiennent de
-vraies formules Excel (interpolation, SUMIF, PMT, IF...) qui référencent
-l'onglet Hypothèses : modifier un prix, un volume ou une charge dans cet
-onglet recalcule automatiquement tous les autres.
+**Tresorerie**, **Seuil**, **KPIs**, **Suivi** (réel vs budget, à compléter
+une fois l'activité démarrée) et **Synthese** (chiffres clés + tableaux prêts
+à transformer en graphique). Les cellules calculées contiennent de vraies
+formules Excel (interpolation, SUMIF, PMT, IF...) qui référencent l'onglet
+Hypothèses : modifier un prix, un volume ou une charge dans cet onglet
+recalcule automatiquement tous les autres.
+
+Chaque cellule de formule est écrite avec **sa valeur déjà calculée** en
+cache, via `lib/finance` (la même source de vérité que le tableau de bord),
+en plus de la formule elle-même (`lib/excel/sheet-helpers.ts::setFormula`,
+paramètre `value` obligatoire). Ce n'est pas cosmétique : sans valeur en
+cache, la bibliothèque `xlsx` supprime silencieusement la cellule de
+formule à l'écriture (vérifié empiriquement), et même quand elle est
+présente, rien ne garantit qu'un tableur la recalcule immédiatement à
+l'ouverture plutôt que d'afficher du vide. Un test de non-régression
+(`generate.smoke.test.ts`) écrit puis relit réellement le classeur pour
+vérifier que ce n'est pas seulement vrai en mémoire.
 
 Limites connues (documentées dans l'onglet Guide) :
 
@@ -155,37 +170,59 @@ Limites connues (documentées dans l'onglet Guide) :
 - Le tableau d'amortissement de l'emprunt est généré sur un gabarit de 60
   périodes ; au-delà, complétez manuellement le modèle.
 - Le classeur est généré avec la bibliothèque `xlsx` (édition communautaire) :
-  les formats de nombre (`#,##0" €"`, `0.0%`) sont conservés, mais la mise en
+  les formats de nombre (`#,##0" €"`, `0.0%`), les liens hypertextes internes
+  et les largeurs de colonnes sont conservés à l'écriture, mais ni la mise en
   forme conditionnelle par couleur (bleu = entrée, noir = calcul, vert =
-  résultat) n'est pas garantie à l'écriture — la convention est documentée en
-  toutes lettres dans l'onglet Guide.
+  résultat — convention documentée en toutes lettres dans l'onglet Guide, pas
+  appliquée visuellement) ni les graphiques natifs Excel ne sont supportés en
+  écriture par cette édition de la bibliothèque (seule la version payante le
+  permet) — l'onglet Synthese fournit les données déjà prêtes à sélectionner
+  pour qu'un graphique se crée en un clic (Insertion > Graphique) plutôt que
+  d'en embarquer un.
 
 ## Import d'un projet complet depuis Excel ou PDF (étape 1 du wizard)
 
 En plus de la saisie manuelle, l'étape 1 du wizard (`ProjectImportCard`,
 `components/wizard/project-import-card.tsx`) propose d'importer un projet
 entier depuis un fichier **Excel ou PDF** déjà généré par FinAxis, ou depuis
-le modèle Excel vierge :
+l'un des 3 modèles Excel par secteur :
 
-1. L'utilisateur télécharge un modèle vierge (feuille « Hyp » + guide),
-   pré-rempli avec une ligne d'exemple par tableau — ou repart directement
-   d'un dossier déjà exporté par FinAxis (PDF ou Excel).
+1. L'utilisateur télécharge un modèle adapté à son secteur (voir plus bas) —
+   ou repart directement d'un dossier déjà exporté par FinAxis (PDF ou Excel).
 2. Il le complète avec ses propres données (projet, sources de revenus,
    charges fixes/variables, investissements, financement).
 3. Il dépose le fichier : toutes les étapes du wizard se pré-remplissent
    automatiquement, avec des avertissements affichés pour toute donnée
    manquante ou plan de financement déséquilibré.
 
-### Import Excel
+### Modèles Excel par secteur
 
-Le modèle réutilise exactement le même gabarit de lignes/colonnes que la
-feuille « Hyp » de l'export Excel (`lib/excel/project-sheet-layout.ts`, seule
-source de vérité partagée par l'export et l'import) — un utilisateur peut
-donc aussi bien remplir le modèle vierge que ré-importer un classeur déjà
-exporté par FinAxis pour mettre à jour un projet. Le parsing est
-volontairement strict sur cette structure : FinAxis ne peut pas deviner la
-mise en page d'un tableur quelconque déjà existant chez l'utilisateur, d'où
-le modèle fourni.
+Trois modèles (`lib/excel/sector-templates.ts`), plutôt qu'un par secteur
+exact du wizard (7 secteurs), chacun couvrant plusieurs secteurs à la
+structure économique proche — plus riches à approfondir que 7-8 variantes
+superficielles :
+
+| Modèle | Secteurs couverts | Profil économique |
+| --- | --- | --- |
+| Services & Conseil | Services, Tech / SaaS | Revenus récurrents (abonnement, prestations), charges surtout fixes |
+| Commerce & Restauration | Commerce, Restauration | Volumes élevés, marge sur marchandises, forte saisonnalité |
+| Artisanat & Production | Artisanat, Industrie | Investissement matériel, matières premières, amortissements longs |
+
+Chaque modèle est un classeur complet et réaliste — pas juste la feuille
+Hyp : les 10 onglets décrits ci-dessus, une feuille de garde avec sommaire
+cliquable (liens hypertextes internes) et un jeu de données d'exemple
+volontairement équilibré (besoins = ressources dès l'ouverture, aucun
+avertissement de déséquilibre) et rentable, pour donner une première
+impression professionnelle avant toute modification. Les trois partagent
+exactement le même gabarit de lignes/colonnes sur la feuille « Hyp »
+(`lib/excel/project-sheet-layout.ts`, seule source de vérité partagée par
+l'export, les modèles et l'import) : le site les relit avec le même
+parseur, sans aucun cas particulier — un utilisateur peut aussi bien
+compléter un modèle par secteur que ré-importer un classeur déjà exporté
+par FinAxis pour mettre à jour un projet. Le parsing est volontairement
+strict sur cette structure : FinAxis ne peut pas deviner la mise en page
+d'un tableur quelconque déjà existant chez l'utilisateur, d'où les modèles
+fournis.
 
 ### Import PDF
 

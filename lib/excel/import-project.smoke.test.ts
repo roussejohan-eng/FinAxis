@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 import type { Project } from "@/lib/finance/types";
 import { computeProjectResults } from "@/lib/finance";
 import { buildProjectWorkbook } from "./generate";
-import { buildImportTemplateWorkbook } from "./project-template";
+import { SECTOR_TEMPLATES, buildSectorTemplateWorkbook, type SectorTemplateId } from "./sector-templates";
 import { readProjectFromHypSheet } from "./project-sheet-layout";
 
 function sampleProject(): Project {
@@ -38,13 +38,34 @@ function sampleProject(): Project {
   };
 }
 
+const ALL_SHEETS = ["Guide", "Hyp", "Revenus", "CR", "Financement", "Tresorerie", "Seuil", "Suivi", "KPIs", "Synthese"];
+
 describe("Excel import", () => {
-  it("produces a downloadable template with a Guide and a Hyp sheet", () => {
-    const wb = buildImportTemplateWorkbook();
-    expect(wb.SheetNames).toEqual(["Guide", "Hyp"]);
-    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "buffer" });
-    expect(buffer.length).toBeGreaterThan(500);
-  });
+  it.each(SECTOR_TEMPLATES.map((t) => t.id))(
+    "produces a downloadable %s template with all 10 sheets, that round-trips with no warnings",
+    (id: SectorTemplateId) => {
+      const wb = buildSectorTemplateWorkbook(id);
+      expect(wb.SheetNames).toEqual(ALL_SHEETS);
+
+      const buffer = XLSX.write(wb, { bookType: "xlsx", type: "buffer" });
+      expect(buffer.length).toBeGreaterThan(1000);
+
+      // Le fichier écrit puis relu (comme un utilisateur qui le télécharge et
+      // le redépose tel quel) doit se relire à l'identique : c'est le test
+      // qui aurait attrapé le bug de confusion sommaire/page de contenu du
+      // côté import PDF si son équivalent Excel existait ici.
+      const reloaded = XLSX.read(buffer, { type: "buffer" });
+      const { data, warnings } = readProjectFromHypSheet(reloaded.Sheets["Hyp"]);
+
+      expect(data.revenueSources.length).toBeGreaterThan(0);
+      expect(data.fixedExpenses.length).toBeGreaterThan(0);
+      expect(data.investments.length).toBeGreaterThan(0);
+
+      // Seul avertissement attendu sur un modèle vierge : le nom est à saisir.
+      expect(warnings.some((w) => w.toLowerCase().includes("nom du projet"))).toBe(true);
+      expect(warnings.some((w) => w.includes("financement"))).toBe(false);
+    }
+  );
 
   it("round-trips a project through export -> re-read without data loss", () => {
     const project = sampleProject();
