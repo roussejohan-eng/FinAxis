@@ -35,9 +35,9 @@ export function WizardProgressBar({
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`Étape ${i + 1} : ${label}${isDone ? " (complétée)" : ""}`}
                 className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
-                  isCurrent && "border-turquoise-500 bg-turquoise-500 text-white",
-                  isDone && !isCurrent && "border-turquoise-500 bg-white text-turquoise-600 hover:bg-turquoise-50",
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all",
+                  isCurrent && "scale-110 border-turquoise-500 bg-turquoise-500 text-white shadow-sm shadow-turquoise-500/30",
+                  isDone && !isCurrent && "border-turquoise-500 bg-white text-turquoise-600 hover:scale-105 hover:bg-turquoise-50",
                   !isDone && !isCurrent && "border-border bg-white text-muted-foreground",
                   isClickable && "cursor-pointer"
                 )}

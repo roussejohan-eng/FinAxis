@@ -18,7 +18,9 @@ export default function TarifsPage() {
         <section className="bg-white py-20 sm:py-24">
           <div className="container">
             <FadeIn className="mx-auto max-w-2xl text-center">
-              <h1 className="text-4xl font-semibold text-navy-700 sm:text-5xl">Tarification</h1>
+              <h1 className="text-4xl font-semibold text-navy-700 sm:text-5xl">
+                <span className="font-serif italic font-medium text-turquoise-600">Tarification</span>
+              </h1>
               <p className="mt-4 text-muted-foreground">
                 Quatre offres claires, sans engagement, pensées pour chaque étape de votre projet.
               </p>

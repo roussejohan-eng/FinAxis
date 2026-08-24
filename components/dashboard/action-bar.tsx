@@ -34,7 +34,7 @@ export function DashboardActionBar({ project, results }: { project: Project; res
 
   return (
     <>
-      <div className="sticky bottom-0 z-20 border-t border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      <div className="sticky bottom-0 z-20 border-t border-border bg-white/95 shadow-[0_-4px_16px_-8px_rgba(15,42,68,0.12)] backdrop-blur supports-[backdrop-filter]:bg-white/85">
         <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-8">
           <Button variant="outline" onClick={() => setShareOpen(true)}>
             <Share2 className="h-4 w-4" aria-hidden />

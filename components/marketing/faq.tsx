@@ -44,7 +44,9 @@ export function Faq() {
     <section id="faq" className="bg-muted py-20 sm:py-28">
       <div className="container">
         <FadeIn className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-semibold text-navy-700 sm:text-4xl">Questions fréquentes</h2>
+          <h2 className="text-3xl font-semibold text-navy-700 sm:text-4xl">
+            Questions <span className="font-serif italic font-medium text-turquoise-600">fréquentes</span>
+          </h2>
         </FadeIn>
 
         <FadeIn delay={0.08} className="mx-auto mt-12 max-w-2xl rounded-lg border border-border bg-white px-6">

@@ -28,15 +28,17 @@ export function Problem() {
       <div className="container">
         <FadeIn className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-semibold text-navy-700 sm:text-4xl">
-            45 % des créateurs se lancent sans accompagnement financier.
+            45 % des créateurs se lancent{" "}
+            <span className="font-serif italic font-medium text-turquoise-600">sans accompagnement</span>{" "}
+            financier.
           </h2>
         </FadeIn>
 
-        <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {ITEMS.map((item, i) => (
             <FadeIn key={item.title} delay={i * 0.08}>
-              <div className="text-center sm:text-left">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-white shadow-sm sm:mx-0">
+              <div className="h-full rounded-lg border border-transparent bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-navy-100 hover:shadow-md sm:text-left">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-navy-50 sm:mx-0">
                   <item.icon className="h-6 w-6 text-turquoise-500" aria-hidden />
                 </div>
                 <h3 className="mt-5 text-base font-semibold text-navy-700">{item.title}</h3>

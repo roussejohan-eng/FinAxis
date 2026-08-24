@@ -52,23 +52,25 @@ function WizardContent() {
           <Link href="/" aria-label="FinAxis, accueil">
             <Logo />
           </Link>
-          <Link href="/" className="text-sm text-muted-foreground hover:text-navy-700">
+          <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-navy-700">
             Enregistrer et quitter
           </Link>
         </div>
       </header>
 
-      <div className="border-b border-border bg-white py-6">
+      <div className="relative overflow-hidden border-b border-border bg-white py-6">
         <div className="container max-w-3xl">
           <WizardProgressBar currentStep={currentStep} onStepClick={goTo} />
         </div>
       </div>
 
       <main className="container max-w-3xl py-12">
-        <h1 className="text-2xl font-semibold text-navy-700">{WIZARD_STEP_LABELS[currentStep]}</h1>
+        <h1 className="text-2xl font-semibold text-navy-700">
+          {WIZARD_STEP_LABELS[currentStep]}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">{STEP_DESCRIPTIONS[currentStep]}</p>
 
-        <div className="mt-8 rounded-lg border border-border bg-white p-6 shadow-sm sm:p-8">
+        <div className="mt-8 rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow sm:p-8">
           {/* Les champs de chaque étape lisent leurs valeurs initiales du
               brouillon persisté au montage (react-hook-form ne les relit pas
               automatiquement). Tant que le store ne s'est pas réhydraté

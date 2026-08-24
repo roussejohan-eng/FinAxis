@@ -47,14 +47,15 @@ export function WhatYouGet() {
       <div className="container">
         <FadeIn className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-semibold text-navy-700 sm:text-4xl">
-            Tout ce qu&apos;un banquier demande, dans un seul document.
+            Tout ce qu&apos;un banquier demande,{" "}
+            <span className="font-serif italic font-medium text-turquoise-600">dans un seul document</span>.
           </h2>
         </FadeIn>
 
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {ITEMS.map((item, i) => (
             <FadeIn key={item.title} delay={i * 0.05}>
-              <div className="h-full rounded-lg border border-border bg-white p-6 shadow-sm">
+              <div className="h-full rounded-lg border border-border bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-turquoise-200 hover:shadow-md">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-turquoise-50">
                   <item.icon className="h-5 w-5 text-turquoise-600" aria-hidden />
                 </div>

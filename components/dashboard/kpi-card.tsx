@@ -16,7 +16,7 @@ export function KpiCard({
   badge?: { label: string; positive: boolean };
 }) {
   return (
-    <div className="rounded-lg border border-border bg-white p-5 shadow-sm">
+    <div className="rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-turquoise-200 hover:shadow-md">
       <div className="flex items-center justify-between">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-turquoise-50">
           <Icon className="h-4.5 w-4.5 text-turquoise-600" aria-hidden />

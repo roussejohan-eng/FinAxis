@@ -36,7 +36,8 @@ export default function ContactB2bPage() {
         <div className="container grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <h1 className="text-3xl font-semibold text-navy-700 sm:text-4xl">
-              Discutons de votre structure
+              Discutons de{" "}
+              <span className="font-serif italic font-medium text-turquoise-600">votre structure</span>
             </h1>
             <p className="mt-3 max-w-xl text-muted-foreground">
               Décrivez votre structure d&apos;accompagnement, un conseiller FinAxis vous recontacte
@@ -49,14 +50,17 @@ export default function ContactB2bPage() {
           </div>
 
           <aside>
-            <div className="rounded-lg border border-border bg-white p-6 shadow-sm sm:p-8">
+            <div className="rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md sm:p-8">
               <h2 className="text-base font-semibold text-navy-700">
                 Pourquoi les structures d&apos;accompagnement choisissent FinAxis
               </h2>
               <ul className="mt-6 flex flex-col gap-6">
                 {BENEFITS.map((benefit) => (
-                  <li key={benefit.title} className="flex gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-turquoise-50">
+                  <li
+                    key={benefit.title}
+                    className="group flex gap-4 rounded-lg p-2 -m-2 transition-colors hover:bg-navy-50"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-turquoise-50 transition-transform group-hover:scale-105">
                       <benefit.icon className="h-5 w-5 text-turquoise-600" aria-hidden />
                     </div>
                     <div>

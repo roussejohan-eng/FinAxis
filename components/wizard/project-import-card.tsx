@@ -41,9 +41,9 @@ export function ProjectImportCard({
   };
 
   return (
-    <div className="rounded-lg border border-dashed border-turquoise-200 bg-turquoise-50/40 p-5">
+    <div className="rounded-lg border border-dashed border-turquoise-200 bg-turquoise-50/40 p-5 transition-colors hover:border-turquoise-300 hover:bg-turquoise-50/70">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
           <FileText className="h-4.5 w-4.5 text-turquoise-600" aria-hidden />
         </div>
         <div className="min-w-0">

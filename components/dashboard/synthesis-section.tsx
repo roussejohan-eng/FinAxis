@@ -65,7 +65,7 @@ export function SynthesisSection({ results }: { results: ProjectResults }) {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
           <p className="text-sm font-semibold text-navy-700">CA vs charges par mois</p>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -82,7 +82,7 @@ export function SynthesisSection({ results }: { results: ProjectResults }) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
           <p className="text-sm font-semibold text-navy-700">Trésorerie cumulée</p>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">

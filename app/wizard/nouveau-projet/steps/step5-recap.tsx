@@ -19,7 +19,7 @@ function RecapSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-white p-5">
+    <div className="rounded-lg border border-border bg-white p-5 transition-all hover:border-turquoise-200 hover:shadow-md">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-navy-700">{title}</h3>
         <button

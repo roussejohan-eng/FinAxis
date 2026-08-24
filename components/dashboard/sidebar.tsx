@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { AmbientGlow } from "@/components/ambient-glow";
 import { formatDate } from "@/lib/finance/format";
 
 const NAV_ITEMS = [
@@ -33,8 +34,9 @@ export function DashboardSidebar({
   startDate: string;
 }) {
   return (
-    <aside className="hidden w-60 shrink-0 flex-col bg-navy-900 text-white lg:flex">
-      <div className="sticky top-0 flex h-screen flex-col">
+    <aside className="relative hidden w-60 shrink-0 flex-col overflow-hidden bg-navy-900 text-white lg:flex">
+      <AmbientGlow variant="dark" className="h-[420px]" />
+      <div className="relative sticky top-0 flex h-screen flex-col">
         <div className="px-6 pt-6">
           <Link href="/" aria-label="FinAxis, accueil">
             <Logo variant="light" />
@@ -53,9 +55,12 @@ export function DashboardSidebar({
             <a
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/70 transition-all hover:translate-x-0.5 hover:bg-white/10 hover:text-white"
             >
-              <item.icon className="h-4 w-4 shrink-0" aria-hidden />
+              <item.icon
+                className="h-4 w-4 shrink-0 transition-colors group-hover:text-turquoise-400"
+                aria-hidden
+              />
               {item.label}
             </a>
           ))}

@@ -52,7 +52,7 @@ export function CashFlowSection({ results }: { results: ProjectResults }) {
         </Table>
       </div>
 
-      <div className="mt-6 rounded-lg border border-border bg-white p-5 shadow-sm">
+      <div className="mt-6 rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
         <p className="text-sm font-semibold text-navy-700">Trésorerie cumulée</p>
         <div className="mt-4 h-64">
           <ResponsiveContainer width="100%" height="100%">

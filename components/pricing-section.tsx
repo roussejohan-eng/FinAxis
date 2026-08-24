@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn } from "@/components/fade-in";
+import { AmbientGlow } from "@/components/ambient-glow";
 import { B2B_PLAN, PRICING_DISCLAIMER, PRICING_PLANS } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,9 @@ export function PricingSection({ showHeading = true }: { showHeading?: boolean }
       {showHeading && (
         <FadeIn className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-semibold text-navy-700 sm:text-4xl">
-            Une offre adaptée à chaque étape de votre projet.
+            Une offre adaptée à{" "}
+            <span className="font-serif italic font-medium text-turquoise-600">chaque étape</span> de
+            votre projet.
           </h2>
           <p className="mt-4 text-base text-muted-foreground">
             Commencez gratuitement, passez à l&apos;offre supérieure quand votre projet grandit.
@@ -25,8 +28,10 @@ export function PricingSection({ showHeading = true }: { showHeading?: boolean }
           <FadeIn key={plan.id} delay={i * 0.06}>
             <div
               className={cn(
-                "relative flex h-full flex-col rounded-lg border bg-white p-6 shadow-sm",
-                plan.highlighted ? "border-2 border-turquoise-500" : "border-border"
+                "relative flex h-full flex-col rounded-lg border bg-white p-6 shadow-sm transition-all hover:-translate-y-1",
+                plan.highlighted
+                  ? "border-2 border-turquoise-500 hover:shadow-lg hover:shadow-turquoise-500/10"
+                  : "border-border hover:border-turquoise-200 hover:shadow-md"
               )}
             >
               {plan.badge && (
@@ -72,8 +77,9 @@ export function PricingSection({ showHeading = true }: { showHeading?: boolean }
       </p>
 
       <FadeIn className="mt-10">
-        <div className="rounded-lg bg-navy-700 p-8 text-white sm:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <div className="relative overflow-hidden rounded-lg bg-navy-700 p-8 text-white sm:p-10">
+          <AmbientGlow variant="dark" className="h-[320px]" />
+          <div className="relative grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
             <div>
               <h3 className="text-2xl font-semibold">{B2B_PLAN.title}</h3>
               <p className="mt-3 text-white/70">{B2B_PLAN.description}</p>

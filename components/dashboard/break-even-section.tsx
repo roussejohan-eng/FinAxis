@@ -15,7 +15,10 @@ export function BreakEvenSection({ results }: { results: ProjectResults }) {
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {breakEven.years.map((year) => (
-          <div key={year.year} className="rounded-lg border border-border bg-white p-5 shadow-sm">
+          <div
+            key={year.year}
+            className="rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-turquoise-200 hover:shadow-md"
+          >
             <p className="text-sm font-semibold text-navy-700">Année {year.year}</p>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex items-center justify-between">

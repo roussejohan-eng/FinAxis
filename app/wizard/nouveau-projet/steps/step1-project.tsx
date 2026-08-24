@@ -181,10 +181,10 @@ export function Step1Project({ onNext }: { onNext: () => void }) {
                 type="button"
                 onClick={() => setProjectInfo({ seasonality: profile })}
                 className={cn(
-                  "flex items-start gap-3 rounded-lg border p-4 text-left transition-colors",
+                  "flex items-start gap-3 rounded-lg border p-4 text-left transition-all",
                   selected
-                    ? "border-2 border-turquoise-500 bg-turquoise-50"
-                    : "border-border hover:border-navy-400"
+                    ? "border-2 border-turquoise-500 bg-turquoise-50 shadow-sm"
+                    : "border-border hover:-translate-y-0.5 hover:border-navy-400 hover:shadow-sm"
                 )}
                 aria-pressed={selected}
               >

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DashboardMockup } from "@/components/dashboard-mockup";
 import { FadeIn } from "@/components/fade-in";
+import { AmbientGlow } from "@/components/ambient-glow";
 
 const PROOF_POINTS = [
   { icon: Wallet, label: "Sans carte bancaire" },
@@ -14,28 +15,7 @@ const PROOF_POINTS = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-white">
-      {/* Bandeau abstrait décoratif — pas de photo/rendu 3D, tout en SVG,
-          pour un rendu premium et dynamique sans casser le fond blanc. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[720px] overflow-hidden" aria-hidden>
-        <svg
-          className="absolute left-1/2 top-[-60px] h-[780px] w-[1600px] -translate-x-1/2 blur-3xl"
-          viewBox="0 0 1600 780"
-          fill="none"
-        >
-          <defs>
-            <radialGradient id="hero-blob-navy" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#0F2A44" stopOpacity="0.16" />
-              <stop offset="100%" stopColor="#0F2A44" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id="hero-blob-turquoise" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#1FB6C1" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#1FB6C1" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <ellipse cx="180" cy="220" rx="460" ry="300" fill="url(#hero-blob-navy)" />
-          <ellipse cx="1320" cy="160" rx="440" ry="300" fill="url(#hero-blob-turquoise)" />
-        </svg>
-      </div>
+      <AmbientGlow variant="light" />
 
       <div className="container grid items-center gap-12 pb-16 pt-20 lg:grid-cols-2 lg:pb-20 lg:pt-28">
         <FadeIn>

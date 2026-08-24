@@ -7,13 +7,15 @@ export function HybridApproach() {
       <div className="container">
         <FadeIn className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-semibold text-navy-700 sm:text-4xl">
-            L&apos;outil, plus l&apos;expert quand vous en avez besoin.
+            L&apos;outil, plus{" "}
+            <span className="font-serif italic font-medium text-turquoise-600">l&apos;expert</span> quand
+            vous en avez besoin.
           </h2>
         </FadeIn>
 
         <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2">
           <FadeIn>
-            <div className="h-full rounded-lg border border-border p-8">
+            <div className="h-full rounded-lg border border-border p-8 transition-all hover:-translate-y-1 hover:border-turquoise-200 hover:shadow-md">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-turquoise-50">
                 <Rocket className="h-6 w-6 text-turquoise-600" aria-hidden />
               </div>
@@ -27,7 +29,7 @@ export function HybridApproach() {
           </FadeIn>
 
           <FadeIn delay={0.08}>
-            <div className="h-full rounded-lg border border-border p-8">
+            <div className="h-full rounded-lg border border-border p-8 transition-all hover:-translate-y-1 hover:border-turquoise-200 hover:shadow-md">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-turquoise-50">
                 <ShieldCheck className="h-6 w-6 text-turquoise-600" aria-hidden />
               </div>
