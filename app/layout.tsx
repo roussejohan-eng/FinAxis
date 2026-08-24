@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -7,6 +7,17 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Accent éditorial (titres) : quelques mots-clés en italique dans les gros
+// titres marketing, pour un rendu plus dynamique — jamais utilisé pour du
+// texte long ni dans le wizard/tableau de bord (lisibilité prioritaire).
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["500"],
+  style: ["italic"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 
@@ -67,7 +78,7 @@ export default function RootLayout({
 
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${fraunces.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger

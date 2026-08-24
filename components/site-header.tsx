@@ -24,12 +24,15 @@ export function SiteHeader() {
           <Logo />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Navigation principale">
+        <nav
+          className="hidden items-center gap-1 rounded-full border border-border bg-navy-50/60 p-1 md:flex"
+          aria-label="Navigation principale"
+        >
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-navy-700 transition-colors hover:text-turquoise-600"
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-navy-700 transition-colors hover:bg-white hover:text-turquoise-600 hover:shadow-sm"
             >
               {link.label}
             </Link>
