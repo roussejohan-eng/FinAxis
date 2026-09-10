@@ -59,15 +59,15 @@ export function CashFlowSection({ results }: { results: ProjectResults }) {
             <ComposedChart data={cashFlow.months} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
               <defs>
                 <linearGradient id="cashGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset={gradientOffset} stopColor="#1FB6C1" stopOpacity={0.35} />
+                  <stop offset={gradientOffset} stopColor="#1282A2" stopOpacity={0.35} />
                   <stop offset={gradientOffset} stopColor="#DC2626" stopOpacity={0.35} />
                 </linearGradient>
                 <linearGradient id="cashStroke" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset={gradientOffset} stopColor="#1FB6C1" />
+                  <stop offset={gradientOffset} stopColor="#1282A2" />
                   <stop offset={gradientOffset} stopColor="#DC2626" />
                 </linearGradient>
               </defs>
-              <CartesianGrid vertical={false} stroke="#E5E9EE" />
+              <CartesianGrid vertical={false} stroke="#E2E4E8" />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} width={48} />
               <Tooltip formatter={(value) => formatEUR(Number(value ?? 0))} />

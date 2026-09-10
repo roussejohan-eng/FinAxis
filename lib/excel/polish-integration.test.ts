@@ -64,8 +64,8 @@ describe("full workbook polishing (export + sector templates)", () => {
     const crXml = await zip.file(await findSheetPath(zip, "CR"))!.async("string");
     expect(crXml).toMatch(/<c r="A1"[^>]* s="\d+"/);
     const stylesXml = await zip.file("xl/styles.xml")!.async("string");
-    expect(stylesXml).toContain('fgColor rgb="FF0F2A44"'); // navy
-    expect(stylesXml).toContain('fgColor rgb="FFEAFBFC"'); // turquoise pâle (cellules d'entrée)
+    expect(stylesXml).toContain('fgColor rgb="FF001F54"'); // navy
+    expect(stylesXml).toContain('fgColor rgb="FFE8F3F6"'); // turquoise pâle (cellules d'entrée)
   });
 
   it.each(SECTOR_TEMPLATES.map((t) => t.id))(

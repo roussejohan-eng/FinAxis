@@ -10,7 +10,7 @@ import { useId } from "react";
 export function Sparkline({
   data,
   height = 40,
-  color = "#1FB6C1",
+  color = "#1282A2",
   showArea = true,
   strokeWidth = 1.75,
 }: {

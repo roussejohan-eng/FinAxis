@@ -17,7 +17,7 @@ const BARS = [38, 46, 42, 54, 50, 61, 58, 67, 63, 74, 70, 82];
 const LINE = [30, 34, 33, 40, 39, 47, 46, 55, 54, 63, 66, 78];
 
 function KpiIcon({ type, x, y }: { type: KpiSpec["icon"]; x: number; y: number }) {
-  const stroke = "#0F2A44";
+  const stroke = "#001F54";
   switch (type) {
     case "trend":
       return (
@@ -81,21 +81,21 @@ export function DashboardMockup({ className }: { className?: string }) {
     >
       <defs>
         <linearGradient id="fx-area" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#1FB6C1" stopOpacity="0.22" />
-          <stop offset="1" stopColor="#1FB6C1" stopOpacity="0" />
+          <stop offset="0" stopColor="#1282A2" stopOpacity="0.22" />
+          <stop offset="1" stopColor="#1282A2" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      <rect x="0.5" y="0.5" width="559" height="419" rx="16" fill="#FFFFFF" stroke="#E5E9EE" />
+      <rect x="0.5" y="0.5" width="559" height="419" rx="16" fill="#FFFFFF" stroke="#E2E4E8" />
 
       {/* Barre d'application */}
       <g transform="translate(24 22)">
-        <path d="M0 20.5 L8.5 3 L17 20.5" stroke="#0F2A44" strokeWidth="3.4" strokeLinejoin="round" fill="none" />
-        <path d="M6.3 14.8c0-3.6 1.6-6 3.9-8.4" stroke="#1FB6C1" strokeWidth="2" strokeLinecap="round" fill="none" />
-        <polygon points="9.7,4.2 13.4,5.6 10.7,9" fill="#1FB6C1" />
+        <path d="M0 20.5 L8.5 3 L17 20.5" stroke="#001F54" strokeWidth="3.4" strokeLinejoin="round" fill="none" />
+        <path d="M6.3 14.8c0-3.6 1.6-6 3.9-8.4" stroke="#1282A2" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <polygon points="9.7,4.2 13.4,5.6 10.7,9" fill="#1282A2" />
       </g>
       <rect x="52" y="27" width="118" height="9" rx="4.5" fill="#DCE3EA" />
-      <circle cx="518" cy="31.5" r="4" fill="#1FB6C1" />
+      <circle cx="518" cy="31.5" r="4" fill="#1282A2" />
       <circle cx="500" cy="31.5" r="4" fill="#DCE3EA" />
       <line x1="24" y1="52" x2="536" y2="52" stroke="#EEF1F4" strokeWidth="1" />
 
@@ -110,7 +110,7 @@ export function DashboardMockup({ className }: { className?: string }) {
             <text x={x + 12} y="121" fontSize="8" fontFamily="Helvetica, Arial, sans-serif" fill="#8A97A6">
               {kpi.label}
             </text>
-            <text x={x + 12} y="134" fontSize="13.5" fontFamily="Helvetica, Arial, sans-serif" fontWeight="bold" fill="#0F2A44">
+            <text x={x + 12} y="134" fontSize="13.5" fontFamily="Helvetica, Arial, sans-serif" fontWeight="bold" fill="#001F54">
               {kpi.value}
             </text>
             <text
@@ -130,7 +130,7 @@ export function DashboardMockup({ className }: { className?: string }) {
 
       {/* Zone graphique */}
       <rect x={chartX} y={chartY} width={chartW} height={chartH} rx="10" fill="#FFFFFF" stroke="#E9EDF1" />
-      <text x={chartX + 16} y={chartY + 22} fontSize="9.5" fontFamily="Helvetica, Arial, sans-serif" fontWeight="bold" fill="#0F2A44">
+      <text x={chartX + 16} y={chartY + 22} fontSize="9.5" fontFamily="Helvetica, Arial, sans-serif" fontWeight="bold" fill="#001F54">
         Chiffre d&apos;affaires vs charges
       </text>
 
@@ -154,12 +154,12 @@ export function DashboardMockup({ className }: { className?: string }) {
       })}
 
       <path d={areaPath} fill="url(#fx-area)" stroke="none" />
-      <path d={linePath} fill="none" stroke="#1FB6C1" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={linePath} fill="none" stroke="#1282A2" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
       {linePoints.map(([px, py], i) => (
-        <circle key={i} cx={px} cy={py} r={i === linePoints.length - 1 ? 3.2 : 0} fill="#1FB6C1" />
+        <circle key={i} cx={px} cy={py} r={i === linePoints.length - 1 ? 3.2 : 0} fill="#1282A2" />
       ))}
 
-      <line x1={chartX + 16} x2={chartX + chartW - 16} y1={plotBottom} y2={plotBottom} stroke="#E5E9EE" strokeWidth="1" />
+      <line x1={chartX + 16} x2={chartX + chartW - 16} y1={plotBottom} y2={plotBottom} stroke="#E2E4E8" strokeWidth="1" />
     </svg>
   );
 }

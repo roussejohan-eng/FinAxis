@@ -3,36 +3,35 @@
 @tailwind utilities;
 
 :root {
-  --background: 255 255 255;
-  --foreground: 15 42 68;
-
-  --background: #ffffff;
-  --foreground: #0f2a44;
-  --card: #ffffff;
-  --card-foreground: #0f2a44;
-  --border: #e5e9ee;
-  --input: #e5e9ee;
-  --ring: #1fb6c1;
-  --muted: #f7f9fb;
+  /* Palette FinAxis — Bleu de Prusse / Marine profonde / Bleu Yale /
+     Céruléen / Blanc (voir tailwind.config.ts pour l'échelle complète). */
+  --background: #fefcfb;
+  --foreground: #001f54;
+  --card: #fefcfb;
+  --card-foreground: #001f54;
+  --border: #e2e4e8;
+  --input: #e2e4e8;
+  --ring: #1282a2;
+  --muted: #f5f4f2;
   --muted-foreground: #6b7280;
-  --accent: #eafbfc;
-  --accent-foreground: #0f2a44;
+  --accent: #e8f3f6;
+  --accent-foreground: #001f54;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 }
 
 .dark {
-  --background: #081726;
-  --foreground: #f7f9fb;
-  --card: #0f2a44;
-  --card-foreground: #f7f9fb;
-  --border: #1c3b57;
-  --input: #1c3b57;
-  --ring: #1fb6c1;
-  --muted: #0b2036;
+  --background: #0a1128;
+  --foreground: #fefcfb;
+  --card: #001f54;
+  --card-foreground: #fefcfb;
+  --border: #1b2c4d;
+  --input: #1b2c4d;
+  --ring: #1282a2;
+  --muted: #071022;
   --muted-foreground: #9aa9b8;
-  --accent: #123244;
-  --accent-foreground: #f7f9fb;
+  --accent: #0f3550;
+  --accent-foreground: #fefcfb;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 }
@@ -54,7 +53,7 @@ body {
 
 @layer base {
   :focus-visible {
-    outline: 2px solid #1fb6c1;
+    outline: 2px solid #1282a2;
     outline-offset: 2px;
   }
 }

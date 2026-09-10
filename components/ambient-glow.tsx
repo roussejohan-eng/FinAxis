@@ -25,12 +25,12 @@ export function AmbientGlow({
         >
           <defs>
             <radialGradient id={`glow-navy-${id}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#0F2A44" stopOpacity="0.16" />
-              <stop offset="100%" stopColor="#0F2A44" stopOpacity="0" />
+              <stop offset="0%" stopColor="#001F54" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="#001F54" stopOpacity="0" />
             </radialGradient>
             <radialGradient id={`glow-turquoise-${id}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#1FB6C1" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#1FB6C1" stopOpacity="0" />
+              <stop offset="0%" stopColor="#1282A2" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#1282A2" stopOpacity="0" />
             </radialGradient>
           </defs>
           <ellipse cx="180" cy="220" rx="460" ry="300" fill={`url(#glow-navy-${id})`} />
@@ -44,8 +44,8 @@ export function AmbientGlow({
         >
           <defs>
             <radialGradient id={`glow-turquoise-${id}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#1FB6C1" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#1FB6C1" stopOpacity="0" />
+              <stop offset="0%" stopColor="#1282A2" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#1282A2" stopOpacity="0" />
             </radialGradient>
             <radialGradient id={`glow-white-${id}`} cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.14" />

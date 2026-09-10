@@ -49,7 +49,7 @@ export function MethodologyPage({
         de la vente ou de l&apos;achat, sans délai de règlement (hypothèse simplificatrice).
       </PdfP>
 
-      <View style={{ marginTop: 20, borderTopWidth: 1, borderTopColor: "#E5E9EE", paddingTop: 12 }}>
+      <View style={{ marginTop: 20, borderTopWidth: 1, borderTopColor: "#E2E4E8", paddingTop: 12 }}>
         <PdfP style={{ fontStyle: "italic" }}>
           Ce document est un prévisionnel construit à partir des hypothèses saisies par
           l&apos;utilisateur. Il n&apos;a pas valeur d&apos;attestation comptable.

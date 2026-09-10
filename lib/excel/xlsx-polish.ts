@@ -15,10 +15,10 @@ import { EUR_FORMAT, PCT_FORMAT } from "./sheet-helpers";
 // SheetJS lui-même, en l'absence d'un Excel/LibreOffice réel dans cet
 // environnement pour vérifier visuellement.
 
-const NAVY = "0F2A44";
-const NAVY_PALE = "EEF2F5";
-const TURQUOISE_PALE = "EAFBFC";
-const BORDER_GREY = "E5E9EE";
+const NAVY = "001F54";
+const NAVY_PALE = "EEF1F6";
+const TURQUOISE_PALE = "E8F3F6";
+const BORDER_GREY = "E2E4E8";
 const WHITE = "FFFFFF";
 
 function argb(hex: string): string {

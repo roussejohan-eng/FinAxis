@@ -71,5 +71,5 @@ describe("polishWorkbook", () => {
   });
 });
 
-const NAVY_FILL_SNIPPET = 'fgColor rgb="FF0F2A44"';
-const INPUT_FILL_SNIPPET = 'fgColor rgb="FFEAFBFC"';
+const NAVY_FILL_SNIPPET = 'fgColor rgb="FF001F54"';
+const INPUT_FILL_SNIPPET = 'fgColor rgb="FFE8F3F6"';

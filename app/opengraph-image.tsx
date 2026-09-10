@@ -18,17 +18,17 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          backgroundColor: "#0F2A44",
+          backgroundColor: "#001F54",
           backgroundImage:
-            "radial-gradient(circle at 82% 8%, rgba(31,182,193,0.35), rgba(31,182,193,0) 55%), radial-gradient(circle at 8% 100%, rgba(31,182,193,0.18), rgba(31,182,193,0) 50%)",
+            "radial-gradient(circle at 82% 8%, rgba(18,130,162,0.35), rgba(18,130,162,0) 55%), radial-gradient(circle at 8% 100%, rgba(18,130,162,0.18), rgba(18,130,162,0) 50%)",
           fontFamily: "Helvetica, Arial, sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
             <path d="M 18 82 L 52 12 L 86 82" stroke="#FFFFFF" strokeWidth="14" strokeLinejoin="miter" fill="none" />
-            <path d="M 33 68 C 33 52 40 42 53 38" stroke="#1FB6C1" strokeWidth="8" strokeLinecap="round" fill="none" />
-            <polygon points="51,29 67,34 56,47" fill="#1FB6C1" />
+            <path d="M 33 68 C 33 52 40 42 53 38" stroke="#1282A2" strokeWidth="8" strokeLinecap="round" fill="none" />
+            <polygon points="51,29 67,34 56,47" fill="#1282A2" />
           </svg>
           <span style={{ fontSize: 56, fontWeight: 700, color: "#FFFFFF", letterSpacing: -1 }}>
             FinAxis

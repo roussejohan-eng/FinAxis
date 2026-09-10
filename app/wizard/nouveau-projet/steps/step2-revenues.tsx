@@ -191,11 +191,11 @@ export function Step2Revenues({ onNext, onBack }: { onNext: () => void; onBack: 
             <div className="mt-4 h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
-                  <CartesianGrid vertical={false} stroke="#E5E9EE" />
+                  <CartesianGrid vertical={false} stroke="#E2E4E8" />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} width={40} />
                   <Tooltip formatter={(value) => formatEUR(Number(value ?? 0))} />
-                  <Bar dataKey="ca" fill="#1FB6C1" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="ca" fill="#1282A2" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

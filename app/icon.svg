@@ -1,6 +1,6 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100" height="100" rx="22" fill="#0F2A44" />
+  <rect width="100" height="100" rx="22" fill="#001F54" />
   <path d="M 18 82 L 52 12 L 86 82" stroke="#FFFFFF" stroke-width="14" stroke-linejoin="miter" stroke-linecap="butt" fill="none" />
-  <path d="M 33 68 C 33 52 40 42 53 38" stroke="#1FB6C1" stroke-width="8" stroke-linecap="round" fill="none" />
-  <polygon points="51,29 67,34 56,47" fill="#1FB6C1" />
+  <path d="M 33 68 C 33 52 40 42 53 38" stroke="#1282A2" stroke-width="8" stroke-linecap="round" fill="none" />
+  <polygon points="51,29 67,34 56,47" fill="#1282A2" />
 </svg>

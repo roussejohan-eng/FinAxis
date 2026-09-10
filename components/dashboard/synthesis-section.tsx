@@ -22,7 +22,7 @@ import { formatEUR, formatPercent } from "@/lib/finance/format";
 // Palette cyclique pour les sources de revenus dans le graphique empilé —
 // dérivée de la palette de marque (turquoise/marine), pas de couleurs
 // génériques de librairie graphique.
-const SOURCE_COLORS = ["#1FB6C1", "#0F2A44", "#3FC5CE", "#3D5975", "#17909A", "#0B2036"];
+const SOURCE_COLORS = ["#1282A2", "#001F54", "#2E9DB8", "#034078", "#0E6982", "#05183E"];
 
 export function SynthesisSection({ results }: { results: ProjectResults }) {
   const { revenue, expenses, incomeStatement, cashFlow } = results;
@@ -106,13 +106,13 @@ export function SynthesisSection({ results }: { results: ProjectResults }) {
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="#E5E9EE" />
+                <CartesianGrid vertical={false} stroke="#E2E4E8" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} width={44} />
                 <Tooltip formatter={(value) => formatEUR(Number(value ?? 0))} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="ca" name="Chiffre d'affaires" fill="#1FB6C1" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="charges" name="Charges" fill="#0F2A44" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="ca" name="Chiffre d'affaires" fill="#1282A2" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="charges" name="Charges" fill="#001F54" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -123,11 +123,11 @@ export function SynthesisSection({ results }: { results: ProjectResults }) {
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineData} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="#E5E9EE" />
+                <CartesianGrid vertical={false} stroke="#E2E4E8" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} width={44} />
                 <Tooltip formatter={(value) => formatEUR(Number(value ?? 0))} />
-                <Line type="monotone" dataKey="tresorerie" name="Trésorerie" stroke="#1FB6C1" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="tresorerie" name="Trésorerie" stroke="#1282A2" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -141,7 +141,7 @@ export function SynthesisSection({ results }: { results: ProjectResults }) {
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueBySourceData} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
-                  <CartesianGrid vertical={false} stroke="#E5E9EE" />
+                  <CartesianGrid vertical={false} stroke="#E2E4E8" />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} axisLine={false} tickLine={false} width={44} />
                   <Tooltip formatter={(value) => formatEUR(Number(value ?? 0))} />

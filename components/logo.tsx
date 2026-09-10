@@ -22,8 +22,8 @@ export function Logo({
   showTagline = false,
   taglineClassName,
 }: LogoProps) {
-  const wordColor = variant === "light" ? "#FFFFFF" : "#0F2A44";
-  const arrowColor = "#1FB6C1";
+  const wordColor = variant === "light" ? "#FFFFFF" : "#001F54";
+  const arrowColor = "#1282A2";
 
   return (
     <div className={cn("inline-flex flex-col", className)}>
