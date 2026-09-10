@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { WizardNavButtons } from "@/components/wizard/nav-buttons";
 import { FIXED_EXPENSE_CATEGORIES } from "@/lib/wizard/options";
-import { formatPercent } from "@/lib/finance/format";
+import { formatEUR, formatPercent } from "@/lib/finance/format";
 import type { FixedExpenseCategory } from "@/lib/finance/types";
 
 export function Step3Expenses({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
@@ -305,7 +305,7 @@ export function Step3Expenses({ onNext, onBack }: { onNext: () => void; onBack: 
 
       {ratio && (
         <div className="mt-8 rounded-lg bg-muted p-4 text-sm text-navy-700">
-          Charges fixes mensuelles : <strong>{ratio.fixed.toLocaleString("fr-FR")} €</strong> · Charges
+          Charges fixes mensuelles : <strong>{formatEUR(ratio.fixed)}</strong> · Charges
           variables : <strong>{formatPercent(ratio.variablePct / 100)}</strong> du chiffre d&apos;affaires
           (hors charges à l&apos;unité)
         </div>

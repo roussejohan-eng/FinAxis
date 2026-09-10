@@ -3,17 +3,21 @@
 import Link from "next/link";
 import { FolderKanban, Pencil } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { useScrollSpy } from "@/lib/hooks/use-scroll-spy";
+import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "#synthese", label: "Synthèse" },
-  { href: "#compte-de-resultat", label: "Compte de résultat" },
-  { href: "#tresorerie", label: "Trésorerie" },
-  { href: "#tva", label: "TVA" },
-  { href: "#plan-de-financement", label: "Financement" },
-  { href: "#seuil-de-rentabilite", label: "Seuil de rentabilité" },
+  { id: "synthese", label: "Synthèse" },
+  { id: "compte-de-resultat", label: "Compte de résultat" },
+  { id: "tresorerie", label: "Trésorerie" },
+  { id: "tva", label: "TVA" },
+  { id: "plan-de-financement", label: "Financement" },
+  { id: "seuil-de-rentabilite", label: "Seuil de rentabilité" },
 ];
 
 export function DashboardMobileBar({ projectId }: { projectId: string }) {
+  const activeId = useScrollSpy(NAV_ITEMS.map((item) => item.id));
+
   return (
     <div className="sticky top-0 z-30 bg-navy-900 text-white lg:hidden">
       <div className="flex items-center justify-between px-4 py-3">
@@ -31,15 +35,22 @@ export function DashboardMobileBar({ projectId }: { projectId: string }) {
         className="flex gap-2 overflow-x-auto border-t border-white/10 px-4 py-2.5"
         aria-label="Sections du dossier"
       >
-        {NAV_ITEMS.map((item) => (
-          <a
-            key={item.href}
-            href={item.href}
-            className="shrink-0 whitespace-nowrap rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80"
-          >
-            {item.label}
-          </a>
-        ))}
+        {NAV_ITEMS.map((item) => {
+          const isActive = activeId === item.id;
+          return (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              aria-current={isActive ? "location" : undefined}
+              className={cn(
+                "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                isActive ? "bg-turquoise-500 text-white" : "bg-white/10 text-white/80"
+              )}
+            >
+              {item.label}
+            </a>
+          );
+        })}
       </nav>
     </div>
   );

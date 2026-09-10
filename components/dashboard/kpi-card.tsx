@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Sparkline } from "@/components/dashboard/sparkline";
 import { cn } from "@/lib/utils";
 
 export function KpiCard({
@@ -8,12 +9,15 @@ export function KpiCard({
   value,
   trend,
   badge,
+  sparklineData,
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
   trend?: { value: string; positive: boolean };
   badge?: { label: string; positive: boolean };
+  /** Série mensuelle optionnelle (12 valeurs) affichée en mini-graphique. */
+  sparklineData?: number[];
 }) {
   return (
     <div className="rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-turquoise-200 hover:shadow-md">
@@ -33,6 +37,11 @@ export function KpiCard({
         <p className={cn("mt-1 text-xs font-medium", trend.positive ? "text-[#16A34A]" : "text-destructive")}>
           {trend.value}
         </p>
+      )}
+      {sparklineData && (
+        <div className={trend ? "mt-3" : "mt-4"}>
+          <Sparkline data={sparklineData} height={28} strokeWidth={1.5} />
+        </div>
       )}
     </div>
   );

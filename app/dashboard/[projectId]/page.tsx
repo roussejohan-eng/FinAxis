@@ -15,6 +15,7 @@ import { FinancingSection } from "@/components/dashboard/financing-section";
 import { BreakEvenSection } from "@/components/dashboard/break-even-section";
 import { DashboardActionBar } from "@/components/dashboard/action-bar";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const params = useParams<{ projectId: string }>();
@@ -29,7 +30,30 @@ export default function DashboardPage() {
   // identique au rendu serveur (au lieu de "Projet introuvable" à tort),
   // pour éviter tout flash de contenu et toute erreur d'hydratation React.
   if (!hasHydrated) {
-    return <div className="min-h-screen bg-white" aria-hidden />;
+    return (
+      <div className="flex min-h-screen bg-white" aria-hidden>
+        <div className="hidden w-60 shrink-0 flex-col gap-6 bg-navy-900 p-6 lg:flex">
+          <Skeleton className="h-8 w-28 bg-white/10" />
+          <Skeleton className="h-10 w-full bg-white/10" />
+          <div className="mt-4 flex flex-col gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-9 w-full bg-white/10" />
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 px-4 py-6 sm:px-8 sm:py-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!project || !results) {
